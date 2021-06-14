@@ -12,6 +12,11 @@ app.use("/assets", (req, res, next) => {
     next();
 },static("assets"));
 
+app.use("/src", (req, res, next) => {
+    console.log(`[DEVSERVER] Sending Source ${req.originalUrl}`);
+    next();
+},static("src"));
+
 app.get("/", (req, res) => {
     res.sendFile("index.html", { root: __dirname });
 });
