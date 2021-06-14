@@ -1,7 +1,10 @@
-import RequestedFile from '../lib/RequestedFile.js';
-import { Controllers } from '../lib/Controllers.js';
 
-export namespace Sprites {
+/**
+ * @deprecated
+ */
+/* export namespace Sprites {
+
+
 
     function fileHasLoaded(elem: HTMLImageElement | null): elem is HTMLImageElement {
         return elem instanceof HTMLImageElement;
@@ -209,4 +212,46 @@ export namespace Sprites {
     export interface Drawable {
         onDraw(ctx: CanvasRenderingContext2D): void;
     }
+}
+*/
+
+import { Drawable } from "./CanvasController";
+import MapData, { ResourceLoader } from "./Map";
+
+export default class Player implements Drawable, ResourceLoader {
+    private spritePath!: string;
+    public spritesheet?: HTMLImageElement;
+
+    /*     private x: number;
+        private y: number; */
+    private parent: MapData;
+
+    constructor(parent: MapData) {
+        this.parent = parent;
+    }
+
+    resolveSprites(): Promise<void> {
+        return new Promise((res, rej) => {
+            let f = fetch("/assets/sprites/player.png").then(e => {
+                return e.blob();
+            }).then(b => {
+                let img = new Image();
+                this.spritePath = URL.createObjectURL(b);
+                img.src = this.spritePath;
+                this.spritesheet = img;
+                res();
+            });
+        });
+    }
+    redraw(ctx: CanvasRenderingContext2D): void {
+        // throw new Error("Method not implemented.");
+        ctx.fillStyle = "red";
+        ctx.fillRect(0, 0, 100, 100);
+
+        if (this.spritesheet) {
+            // ctx.drawImage(this.spritesheet)
+        }
+
+    }
+
 }

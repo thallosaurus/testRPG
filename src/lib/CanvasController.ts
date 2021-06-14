@@ -1,4 +1,4 @@
-import MapData from "./Map.js";
+import MapData, { World } from "./Map.js";
 
 let mouseStartX: number | null = null;
 let mouseStartY: number | null = null;
@@ -8,6 +8,7 @@ export default class Canvas implements Drawable {
     private readonly canvas!: HTMLCanvasElement;
     private readonly ctx: CanvasRenderingContext2D;
     private map!: MapData;
+    private world!: World;
 
     constructor(qSel: string = "canvas#game") {
         let c = document.querySelector(qSel);
@@ -21,23 +22,25 @@ export default class Canvas implements Drawable {
         window.addEventListener("keyup", (e) => {
             switch (e.key) {
                 case "o":
-                    this.map.toggleObjectsRendering();
+                    // this.map.toggleObjectsRendering();
                     break;
 
                 case "ArrowLeft":
-                    this.map.decreaseAreaX();
+                    // this.map.decreaseAreaX();
+                    this.world.decX();
                     break;
 
                 case "ArrowRight":
-                    this.map.increaseAreaX();
+                    // this.map.increaseAreaX();
+                    this.world.incX();
                     break;
 
                 case "ArrowUp":
-                    this.map.decreaseAreaY();
+                    // this.map.decreaseAreaY();
                     break;
 
                 case "ArrowDown":
-                    this.map.increaseAreaY();
+                    // this.map.increaseAreaY();
                     break;
             }
         });
@@ -51,8 +54,8 @@ export default class Canvas implements Drawable {
             if (mouseStartX !== null && mouseStartY !== null) {
                 let diffX = event.clientX - mouseStartX;
                 let diffY = event.clientY - mouseStartY;
-                this.map.setCurrentAreaX(diffX / 320);
-                this.map.setCurrentAreaY(diffY / 320);
+                // this.map.setCurrentAreaX(diffX / 320);
+                // this.map.setCurrentAreaY(diffY / 320);
                 console.log(diffX, diffY);
             }
 
@@ -67,17 +70,19 @@ export default class Canvas implements Drawable {
     }
 
     public getCanvasWidthTilesAvailable() {
-        return Math.floor(this.canvas.width / 32);
+        return Math.floor(this.canvas.width / 64);
     }
 
     public getCanvasHeightTilesAvailable() {
-        return Math.floor(this.canvas.height / 32);
+        return Math.floor(this.canvas.height / 64);
     }
 
     async loadStuff() {
-        this.map = await MapData.loadMap("level1.json", this);
+        // this.map = await MapData.loadMap("level1.json", this);
+        this.world = await World.loadMap("level0.json", this);
         Promise.all([
-            this.map.resolveSprites()
+            // this.map.resolveSprites()
+            this.world.resolveSprites()
         ]).then(e => {
             //loading has finished, start the game
             this.startGame();
@@ -97,7 +102,8 @@ export default class Canvas implements Drawable {
 
         //repaint background
         this.redraw(this.ctx);
-        this.map.redraw(this.ctx);
+        // this.map.redraw(this.ctx);
+        this.world.redraw(this.ctx);
         requestAnimationFrame(this.draw.bind(this));
     }
 }
