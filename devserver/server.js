@@ -21,6 +21,10 @@ app.get("/", (req, res) => {
     res.sendFile("index.html", { root: __dirname });
 });
 
+app.get("/mapper", (req, res) => {
+    res.sendFile("mapper.html", { root: __dirname });
+})
+
 app.listen("8080", () => {
     console.log("Dev Server running on :8080");
 });

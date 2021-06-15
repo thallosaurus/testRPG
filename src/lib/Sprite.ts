@@ -216,18 +216,99 @@
 */
 
 import { Drawable } from "./CanvasController";
-import MapData, { ResourceLoader } from "./Map";
+import { ResourceLoader, World, DrawTomap } from "./Map";
 
-export default class Player implements Drawable, ResourceLoader {
+
+export enum Direction {
+    DOWN,
+    LEFT,
+    RIGHT,
+    UP
+}
+
+export default class Player implements DrawTomap, ResourceLoader {
     private spritePath!: string;
     public spritesheet?: HTMLImageElement;
 
+    private x_: number;
+    private y_: number;
+
+    private direction:Direction;
+    private walkingState = 0;
+
+    public lookAt(dir: Direction) {
+        if (!this.parent.moving) this.direction = dir;
+    }
+
+    public incX() {
+        // this.direction = Direction.RIGHT;
+        this.x_++;
+    }
+    
+    public decX() {
+        // this.direction = Direction.LEFT;
+        this.x_--;
+    }
+    
+    public incY() {
+        // this.direction = Direction.DOWN;
+        this.y_++;
+    }
+    
+    public decY() {
+        // this.direction = Direction.UP;
+        this.y_--;
+    }
+
+    public get x(): number {
+        return this.x_;
+    }
+
+    public get y(): number {
+        return this.y_;
+    }
+
+    public getOwnX(): number {
+        return Math.floor((this.parent.middleX + this.parent.x) / this.parent.tilewidth) - 1;
+    }
+
+    public getOwnY(): number {
+        return Math.floor((this.parent.middleY + this.parent.y) / this.parent.tileheight) - 1;
+    }
+
+    public async startAnimation(p: Promise<void>) {
+        //play animation once and wait for resolve of promise
+        let i = 0;
+        i++
+        this.walkingState = i % 4
+        let g = setInterval(() => {
+            
+            i++;
+            this.walkingState = i % 4;
+        }, 100);
+
+        await p;
+        clearInterval(g);
+        this.walkingState = 0;
+    }
+
     /*     private x: number;
         private y: number; */
-    private parent: MapData;
+    private parent: World;
 
-    constructor(parent: MapData) {
+    constructor(parent: World) {
+        console.log(parent);
+        this.x_ = 0;
+        this.y_ = 0;
+        this.direction = Direction.DOWN;
         this.parent = parent;
+    }
+    draw(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void {
+/*         this.x_ = x;
+        this.y_ = y; */
+        if (this.spritesheet) {
+            ctx.drawImage(this.spritesheet, (this.walkingState * 64), (this.direction * 64), 64, 64, x, y, w, h);
+        }
     }
 
     resolveSprites(): Promise<void> {
@@ -243,15 +324,15 @@ export default class Player implements Drawable, ResourceLoader {
             });
         });
     }
-    redraw(ctx: CanvasRenderingContext2D): void {
-        // throw new Error("Method not implemented.");
-        ctx.fillStyle = "red";
-        ctx.fillRect(0, 0, 100, 100);
-
-        if (this.spritesheet) {
-            // ctx.drawImage(this.spritesheet)
-        }
-
-    }
+    /*     redraw(ctx: CanvasRenderingContext2D): void {
+            // throw new Error("Method not implemented.");
+            ctx.fillStyle = "red";
+            ctx.fillRect(0, 0, 100, 100);
+    
+            if (this.spritesheet) {
+                // ctx.drawImage(this.spritesheet)
+            }
+    
+        } */
 
 }

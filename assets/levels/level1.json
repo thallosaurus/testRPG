@@ -31,5 +31,12 @@
         null,
         null,
         781
+    ],
+    "teleports": [
+        {
+            "x": 1,
+            "y": 1,
+            "destination": "level0.json"
+        }
     ]
 }

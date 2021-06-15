@@ -1,4 +1,4 @@
-import MapData, { World } from "./Map.js";
+import { World } from "./Map.js";
 
 let mouseStartX: number | null = null;
 let mouseStartY: number | null = null;
@@ -7,8 +7,10 @@ export default class Canvas implements Drawable {
 
     private readonly canvas!: HTMLCanvasElement;
     private readonly ctx: CanvasRenderingContext2D;
-    private map!: MapData;
+    // private map!: MapData;
     private world!: World;
+
+    // private lastFrame: number;
 
     constructor(qSel: string = "canvas#game") {
         let c = document.querySelector(qSel);
@@ -19,10 +21,18 @@ export default class Canvas implements Drawable {
             throw qSel + " is not a valid Canvas Query String";
         }
 
-        window.addEventListener("keyup", (e) => {
+        window.addEventListener("keydown", (e) => {
             switch (e.key) {
                 case "o":
                     // this.map.toggleObjectsRendering();
+                    let p = prompt("Level?");
+                    if (p !== null && p !== "") {
+                        this.changeWorld(p);
+                    };
+                    break;
+
+                case "Shift":
+                    this.world.startRunning();
                     break;
 
                 case "ArrowLeft":
@@ -37,10 +47,24 @@ export default class Canvas implements Drawable {
 
                 case "ArrowUp":
                     // this.map.decreaseAreaY();
+                    this.world.decY();
                     break;
 
                 case "ArrowDown":
                     // this.map.increaseAreaY();
+                    this.world.incY();
+                    break;
+
+                case "Enter":
+                    this.world.tp();
+                    break;
+            }
+        });
+
+        window.addEventListener("keyup", (e) => {
+            switch (e.key) {
+                case "Shift":
+                    this.world.stopRunning();
                     break;
             }
         });
@@ -66,7 +90,7 @@ export default class Canvas implements Drawable {
             mouseStartY = null;
         });
 
-        this.loadStuff();
+        this.loadStuff("level2.json");
     }
 
     public getCanvasWidthTilesAvailable() {
@@ -77,9 +101,9 @@ export default class Canvas implements Drawable {
         return Math.floor(this.canvas.height / 64);
     }
 
-    async loadStuff() {
+    async loadStuff(levelname: string) {
         // this.map = await MapData.loadMap("level1.json", this);
-        this.world = await World.loadMap("level0.json", this);
+        this.world = await World.loadMap(levelname, this);
         Promise.all([
             // this.map.resolveSprites()
             this.world.resolveSprites()
@@ -99,12 +123,16 @@ export default class Canvas implements Drawable {
     }
 
     private draw(ts: number) {
-
         //repaint background
         this.redraw(this.ctx);
         // this.map.redraw(this.ctx);
         this.world.redraw(this.ctx);
         requestAnimationFrame(this.draw.bind(this));
+    }
+
+    public changeWorld(level: string) {
+        this.world.unloadWorld();
+        this.loadStuff(level);
     }
 }
 
