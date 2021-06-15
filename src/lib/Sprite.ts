@@ -226,7 +226,7 @@ export enum Direction {
     UP
 }
 
-export default class Player implements DrawTomap, ResourceLoader {
+export default class Player implements DrawTomap, ResourceLoader, Drawable {
     private spritePath!: string;
     public spritesheet?: HTMLImageElement;
 
@@ -302,6 +302,9 @@ export default class Player implements DrawTomap, ResourceLoader {
         this.y_ = 0;
         this.direction = Direction.DOWN;
         this.parent = parent;
+    }
+    redraw(ctx: CanvasRenderingContext2D, timestamp: number): void {
+        throw new Error("Method not implemented.");
     }
     draw(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void {
 /*         this.x_ = x;

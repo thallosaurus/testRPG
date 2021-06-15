@@ -1,4 +1,5 @@
-import { World } from "./Map.js";
+import { SimpleMap, World } from "./Map.js";
+import { ObjectRegistry } from "./ObjectRegistry.js";
 
 let mouseStartX: number | null = null;
 let mouseStartY: number | null = null;
@@ -90,7 +91,35 @@ export default class Canvas implements Drawable {
             mouseStartY = null;
         });
 
-        this.loadStuff("level2.json");
+        // this.loadStuff("level2.json");
+
+        this.addObjectsToRenderQueue();
+
+        // this.loadStuff();
+        this.startGame();
+    }
+
+    get width() {
+        return this.canvas.width;
+    }
+
+    get height() {
+        return this.canvas.height;
+    }
+
+    private async addObjectsToRenderQueue() {
+        // let world = await World.loadMap("level2.json", this);
+        // console.log(world);
+        // ObjectRegistry.addToRenderQueue(world);
+
+        ObjectRegistry.addToRenderQueue(this);
+
+        let s = await SimpleMap.build("level0.json", this);
+        ObjectRegistry.addToRenderQueue(s);
+        // ObjectRegistry.addToRenderQueue(await World.loadMap("level0.json", this));
+        // debugger;
+
+        ObjectRegistry.resolveAllSprites();
     }
 
     public getCanvasWidthTilesAvailable() {
@@ -101,6 +130,10 @@ export default class Canvas implements Drawable {
         return Math.floor(this.canvas.height / 64);
     }
 
+    /**
+     * 
+     * @deprecated
+     */
     async loadStuff(levelname: string) {
         // this.map = await MapData.loadMap("level1.json", this);
         this.world = await World.loadMap(levelname, this);
@@ -123,10 +156,7 @@ export default class Canvas implements Drawable {
     }
 
     private draw(ts: number) {
-        //repaint background
-        this.redraw(this.ctx);
-        // this.map.redraw(this.ctx);
-        this.world.redraw(this.ctx);
+        ObjectRegistry.renderToContext(this.ctx, ts);
         requestAnimationFrame(this.draw.bind(this));
     }
 
@@ -137,7 +167,7 @@ export default class Canvas implements Drawable {
 }
 
 export interface Drawable {
-    redraw(ctx: CanvasRenderingContext2D): void;
+    redraw(ctx: CanvasRenderingContext2D, timestamp: number): void;
 }
 
 function isValidCanvasElement(canvas: Element | null): canvas is HTMLCanvasElement {
@@ -147,3 +177,4 @@ function isValidCanvasElement(canvas: Element | null): canvas is HTMLCanvasEleme
 
     return false;
 }
+

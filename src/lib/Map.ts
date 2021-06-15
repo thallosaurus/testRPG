@@ -6,9 +6,9 @@ import Player, { Direction } from "./Sprite.js";
 const TILEMAXWIDTH = 30;
 const TILEMAXHEIGHT = 30;
 
-export interface MapDrawable {
-    drawAt(ctx: CanvasRenderingContext2D, x: number, y: number, xd: number, yd: number): void;
-}
+// export interface MapDrawable {
+//     drawAt(ctx: CanvasRenderingContext2D, x: number, y: number, xd: number, yd: number): void;
+// }
 
 
 
@@ -80,12 +80,12 @@ export class World implements Drawable, ResourceLoader {
         let t = this.getMapDataXY(this.layer[2],
             this.player.getOwnX(),
             this.player.getOwnY());
-            // console.log(this.player.getOwnX(),
-            // this.player.getOwnY(),
-            // t);
+        // console.log(this.player.getOwnX(),
+        // this.player.getOwnY(),
+        // t);
 
         if (t !== null) {
-            if (t.isEvented()){
+            if (t.isEvented()) {
                 this.parent.changeWorld(t.event!);
             }
         }
@@ -226,6 +226,10 @@ export class World implements Drawable, ResourceLoader {
         this.layer.push(layer);
     }
 
+    /**
+     * 
+     * @deprecated
+     */
     resolveSprites(): Promise<void> {
         return new Promise((res, rej) => {
             fetch(this.spriteUrl).then(e => {
@@ -341,7 +345,7 @@ export class World implements Drawable, ResourceLoader {
         // return this.map.getArrayIndexFromInt(x, y, MAPWIDTH, MAPHEIGHT);
         if (x >= this.mapwidth || y >= this.mapheight || x < 0 || y < 0) return null;
 
-        let index = getArrayIndexFromInt(x, y, this.mapwidth, this.mapheight);
+        let index = getArrayIndexFromInt(x, y, this.mapwidth);
         let d = arr[index];
         if (d === undefined) return null;
         // if (d.n < 0) return null;
@@ -363,8 +367,7 @@ export class World implements Drawable, ResourceLoader {
                 for (let x = 0; x < this.viewwidth; x++) {
                     let i = getArrayIndexFromInt(x,
                         y,
-                        this.viewwidth,
-                        this.viewheight);
+                        this.viewwidth);
                     let tile = showBuffer[i];
 
                     if (tile !== null) {
@@ -403,9 +406,9 @@ export class World implements Drawable, ResourceLoader {
 
     public addTeleports(te: Array<TeleportEvents>) {
         let layer = new Array<Tile>(this.mw * this.mh).fill(new Tile(null, this, null));
-        
+
         for (let teleport of te) {
-            layer[getArrayIndexFromInt(teleport.x - 1, teleport.y - 1, this.mw, this.mh)] = new Tile(null, this, teleport.destination);
+            layer[getArrayIndexFromInt(teleport.x - 1, teleport.y - 1, this.mw)] = new Tile(null, this, teleport.destination);
         }
 
         this.layer.push(layer);
@@ -413,11 +416,11 @@ export class World implements Drawable, ResourceLoader {
 }
 
 interface TeleportEvents {
-        
-            x:number;
-            y:number;
-            destination:string;
-        
+
+    x: number;
+    y: number;
+    destination: string;
+
 }
 
 class ObjectsWorld extends World {
@@ -455,7 +458,7 @@ class Tile implements DrawTomap {
         return this.parent.sprite;
     }
 
-    constructor(d: number | null, parent: World, event:string | null = null) {
+    constructor(d: number | null, parent: World, event: string | null = null) {
         this.tiledata = d;
         this.parent = parent;
         if (event !== null) this.setEvent(event);
@@ -476,16 +479,16 @@ class Tile implements DrawTomap {
         if (this.tiledata !== null && this.parent.textureLoaded !== null) {
             (this.tiledata % this.SPRITESHEET_WIDTH, Math.floor(this.tiledata / this.SPRITESHEET_HEIGHT));
             try {
-            ctx.drawImage(
-                this.texture,
-                this.tiledata % this.SPRITESHEET_WIDTH * this.ONETILEWIDTH,
-                Math.floor(this.tiledata / this.SPRITESHEET_HEIGHT) * this.ONETILEHEIGHT,
-                this.ONETILEWIDTH,
-                this.ONETILEHEIGHT,
-                x,
-                y,
-                w,
-                h);
+                ctx.drawImage(
+                    this.texture,
+                    this.tiledata % this.SPRITESHEET_WIDTH * this.ONETILEWIDTH,
+                    Math.floor(this.tiledata / this.SPRITESHEET_HEIGHT) * this.ONETILEHEIGHT,
+                    this.ONETILEWIDTH,
+                    this.ONETILEHEIGHT,
+                    x,
+                    y,
+                    w,
+                    h);
             } catch (e) {
 
             }
@@ -521,6 +524,180 @@ class Tile implements DrawTomap {
     }
 }
 
-function getArrayIndexFromInt(x: number, y: number, w: number, h: number): number {
+function getArrayIndexFromInt(x: number, y: number, w: number): number {
     return y * w + x;
+}
+
+/**
+ * @deprecated
+ */
+abstract class Builder {
+    /**
+     * Declares the default-state of the class
+     */
+    // build() : Promise<any> {};
+}
+
+export class SimpleMap implements ResourceLoader, Drawable {
+    mw: number;
+    mh: number;
+    spriteUrl: string;
+    spriteWidth: number;
+    spriteHeight: number;
+    // player: Player;
+    x_: number;
+    y_: number;
+    // parent: CanvasController;
+    textureUrl!: string;
+    texture!: HTMLImageElement;
+
+    loadedTiles: Array<null | SimpleTile>;
+
+    static build(filename: string, parent: CanvasController): Promise<Drawable> {
+        return new Promise<SimpleMap>((res, rej) => {
+            /*let d = [
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 0, 8, 0, 0, 0, 0, 0, 0, 1,
+                1, 0, 3, 0, 0, 0, 0, 0, 0, 1,
+                1, 0, 0, 5, 0, 0, 0, 0, 0, 1,
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                1, 0, 0, 0, 4, 0, 0, 0, 0, 1,
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 5
+            ];*/
+
+            fetch("/assets/levels/" + filename).then(e => {
+                return e.json();
+            }).then(json => {
+                console.log(json);
+
+                let w = new SimpleMap(json);
+                w.map = json.mapped.map((e: any) => new SimpleTile(e));
+                // w.map_ = d_final;
+                // w.addLayer(d_final);
+
+                // let o = new World(json.width, json.height, json.spritesheet, json.spawnX, json.spawnY, parent);
+                // let o_final = json.objects.map((e: any) => new Tile(e, w));
+                // w.addLayer(o_final);
+                // w.addTeleports(json.teleports);
+                res(w);
+            });
+        });
+    }
+
+    //TODO Interface JSON
+    constructor(config: JSONConfig) {
+        // this.map = mapData;
+        this.mw = config.width;
+        this.mh = config.height;
+        this.spriteUrl = config.spritesheet;
+        // this.player = new Player(this);
+        this.x_ = config.spawnX;
+        this.y_ = config.spawnY;
+
+        this.spriteHeight = 64;
+        // this.spri
+
+        this.loadedTiles = new Array(this.mw * this.mh).fill(null);
+        // this.parent = parent;
+    }
+
+    set map(m: Array<null | number>) {
+        this.loadedTiles = m.map((t) => { return new SimpleTile(t) });
+        // console.log(m);
+    }
+
+    resolveSprites(): Promise<void> {
+        return new Promise((res, rej) => {
+            fetch(this.spriteUrl).then(e => {
+                return e.blob();
+            }).then((blob) => {
+                let img = new Image();
+                this.textureUrl = URL.createObjectURL(blob);
+                img.src = this.textureUrl;
+                this.texture = img;
+                // res();
+                // res(blob);
+            });
+        });
+    }
+
+    redraw(ctx: CanvasRenderingContext2D, timestamp: number): void {
+        // throw new Error("Method not implemented.");
+        /*         this.loadedTiles.forEach((e) => {
+                    e?.redraw(ctx, timestamp);
+                }); */
+//debugger;
+        for (let y = 0; y < this.mh; y++) {
+            for (let x = 0; x < this.mw; x++) {
+                let g = (this.loadedTiles[SimpleMap.getI(x, y, this.mw)] as MapDrawable);
+                // console.log(g);
+                g?.drawAt(
+                    ctx,
+                    timestamp,
+                    x * this.mw,
+                    y * this.mh,
+                    this.mw,
+                    this.mh
+                );
+            }
+        }
+    }
+
+    static getXY(i: number, w: number, h: number): Vector2D {
+        let x = i % w;
+        let y = Math.floor(i / h);
+        return { x: x, y: y } as Vector2D;
+    }
+
+    static getI(x: number, y: number, w: number): number {
+        return getArrayIndexFromInt(x, y, x);
+    }
+}
+
+interface Vector2D {
+    x: number;
+    y: number
+}
+
+export interface MapDrawable {
+    drawAt(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void;
+}
+
+class SimpleTile implements MapDrawable {
+    constructor(id: number | null) {
+
+    }
+
+    getTileWidth() {
+
+    }
+
+    drawAt(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void {
+        ctx.strokeStyle = "red";
+        ctx.beginPath();
+        ctx.rect(x, y, w, h);
+        ctx.stroke();
+    }
+
+}
+
+interface JSONConfig {
+    width: number;
+    height: number;
+    spritesheet: string;
+    spawnX: number;
+    spawnY: number;
+    mapped: Array<number>;
+    objects: Array<number | null>;
+
+    /*"teleports": [
+        {
+            "x": 1,
+            "y": 1,
+            "destination": "level2.json"
+        }
+    ]*/
 }
