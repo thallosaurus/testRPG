@@ -1,12 +1,13 @@
 import { SimpleMap, World } from "./Map.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
+import { PlayerEntity } from "./Sprite.js";
 
 let mouseStartX: number | null = null;
 let mouseStartY: number | null = null;
 
 export default class Canvas implements Drawable {
 
-    private readonly canvas!: HTMLCanvasElement;
+    static canvas: HTMLCanvasElement;
     private readonly ctx: CanvasRenderingContext2D;
     // private map!: MapData;
     private world!: World;
@@ -16,8 +17,8 @@ export default class Canvas implements Drawable {
     constructor(qSel: string = "canvas#game") {
         let c = document.querySelector(qSel);
         if (isValidCanvasElement(c)) {
-            this.canvas = c;
-            this.ctx = this.canvas.getContext("2d")!;
+            Canvas.canvas = c;
+            this.ctx = Canvas.canvas.getContext("2d")!;
         } else {
             throw qSel + " is not a valid Canvas Query String";
         }
@@ -38,22 +39,25 @@ export default class Canvas implements Drawable {
 
                 case "ArrowLeft":
                     // this.map.decreaseAreaX();
-                    this.world.decX();
+                    ObjectRegistry.world.moveLeft();
                     break;
 
                 case "ArrowRight":
                     // this.map.increaseAreaX();
-                    this.world.incX();
+                    // this.world.incX();
+                    ObjectRegistry.world.moveRight();
                     break;
 
                 case "ArrowUp":
                     // this.map.decreaseAreaY();
-                    this.world.decY();
+                    // this.world.decY();
+                    ObjectRegistry.world.moveUp();
                     break;
 
                 case "ArrowDown":
                     // this.map.increaseAreaY();
-                    this.world.incY();
+                    // this.world.incY();
+                    ObjectRegistry.world.moveDown();
                     break;
 
                 case "Enter":
@@ -81,6 +85,7 @@ export default class Canvas implements Drawable {
                 let diffY = event.clientY - mouseStartY;
                 // this.map.setCurrentAreaX(diffX / 320);
                 // this.map.setCurrentAreaY(diffY / 320);
+                ObjectRegistry.world.setOffset(diffX / 10, diffY / 10);
                 console.log(diffX, diffY);
             }
 
@@ -99,12 +104,12 @@ export default class Canvas implements Drawable {
         this.startGame();
     }
 
-    get width() {
-        return this.canvas.width;
+    static get width() {
+        return Canvas.canvas.width;
     }
 
-    get height() {
-        return this.canvas.height;
+    static get height() {
+        return Canvas.canvas.height;
     }
 
     private async addObjectsToRenderQueue() {
@@ -116,18 +121,31 @@ export default class Canvas implements Drawable {
 
         let s = await SimpleMap.build("level0.json", this);
         ObjectRegistry.addToRenderQueue(s);
+
+        let player = new PlayerEntity(0, 0);
+        ObjectRegistry.addToMap(player);
+
+        let player1 = new PlayerEntity(2, 2);
+        ObjectRegistry.addToMap(player1);
         // ObjectRegistry.addToRenderQueue(await World.loadMap("level0.json", this));
         // debugger;
 
         ObjectRegistry.resolveAllSprites();
     }
 
+    /**
+     * 
+     * @deprecated
+     */
     public getCanvasWidthTilesAvailable() {
-        return Math.floor(this.canvas.width / 64);
+        return Math.floor(Canvas.canvas.width / 64);
     }
 
+    /**
+     * @deprecated
+     */
     public getCanvasHeightTilesAvailable() {
-        return Math.floor(this.canvas.height / 64);
+        return Math.floor(Canvas.canvas.height / 64);
     }
 
     /**
@@ -152,7 +170,7 @@ export default class Canvas implements Drawable {
 
     public redraw(ctx: CanvasRenderingContext2D): void {
         ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.fillRect(0, 0, Canvas.canvas.width, Canvas.canvas.height);
     }
 
     private draw(ts: number) {
@@ -160,6 +178,10 @@ export default class Canvas implements Drawable {
         requestAnimationFrame(this.draw.bind(this));
     }
 
+    /**
+     * 
+     * @deprecated
+     */
     public changeWorld(level: string) {
         this.world.unloadWorld();
         this.loadStuff(level);
@@ -168,6 +190,9 @@ export default class Canvas implements Drawable {
 
 export interface Drawable {
     redraw(ctx: CanvasRenderingContext2D, timestamp: number): void;
+    redrawDbg?(ctx: CanvasRenderingContext2D, timestamp: number): void;
+/*     textureUrl: string;
+    texture: HTMLImageElement; */
 }
 
 function isValidCanvasElement(canvas: Element | null): canvas is HTMLCanvasElement {

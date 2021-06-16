@@ -215,8 +215,8 @@
 }
 */
 
-import { Drawable } from "./CanvasController";
-import { ResourceLoader, World, DrawTomap } from "./Map";
+import { Drawable } from "./CanvasController.js";
+import { ResourceLoader, World, DrawTomap, MapObject } from "./Map.js";
 
 
 export enum Direction {
@@ -233,7 +233,7 @@ export default class Player implements DrawTomap, ResourceLoader, Drawable {
     private x_: number;
     private y_: number;
 
-    private direction:Direction;
+    private direction: Direction;
     private walkingState = 0;
 
     public lookAt(dir: Direction) {
@@ -244,17 +244,17 @@ export default class Player implements DrawTomap, ResourceLoader, Drawable {
         // this.direction = Direction.RIGHT;
         this.x_++;
     }
-    
+
     public decX() {
         // this.direction = Direction.LEFT;
         this.x_--;
     }
-    
+
     public incY() {
         // this.direction = Direction.DOWN;
         this.y_++;
     }
-    
+
     public decY() {
         // this.direction = Direction.UP;
         this.y_--;
@@ -282,7 +282,7 @@ export default class Player implements DrawTomap, ResourceLoader, Drawable {
         i++
         this.walkingState = i % 4
         let g = setInterval(() => {
-            
+
             i++;
             this.walkingState = i % 4;
         }, 100);
@@ -307,8 +307,8 @@ export default class Player implements DrawTomap, ResourceLoader, Drawable {
         throw new Error("Method not implemented.");
     }
     draw(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void {
-/*         this.x_ = x;
-        this.y_ = y; */
+        /*         this.x_ = x;
+                this.y_ = y; */
         if (this.spritesheet) {
             ctx.drawImage(this.spritesheet, (this.walkingState * 64), (this.direction * 64), 64, 64, x, y, w, h);
         }
@@ -337,5 +337,104 @@ export default class Player implements DrawTomap, ResourceLoader, Drawable {
             }
     
         } */
+
+}
+
+enum PlayerDirection {
+    DOWN,
+    LEFT,
+    RIGHT,
+    UP
+}
+export class PlayerEntity implements MapObject {
+    static textureUrl: string;
+    static texture: HTMLImageElement | null = null;
+
+    x: number;
+    y: number;
+    id: number;
+
+    private direction: PlayerDirection = PlayerDirection.DOWN;
+
+    get width() {
+        return 64;
+    }
+
+    get height() {
+        return 64;
+    }
+
+    constructor(x: number, y: number) {
+        this.id = Math.random() * 100;
+        this.x = x;
+        this.y = y;
+    }
+
+    static resolveSprites(): Promise<void> {
+        console.log("Resolving Player Sprites");
+        return new Promise((res, rej) => {
+            if (PlayerEntity.texture !== null) res();
+            fetch("/assets/sprites/player.png").then(e => {
+                return e.blob();
+            }).then((blob) => {
+                let img = new Image();
+                PlayerEntity.textureUrl = URL.createObjectURL(blob);
+                img.src = PlayerEntity.textureUrl;
+                PlayerEntity.texture = img;
+                res();
+                // res(blob);
+            });
+        });
+    }
+
+    drawAt(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void {
+        // throw new Error("Method not implemented.")
+        let a = 0;
+
+        if (PlayerEntity.texture !== null) {
+        ctx.drawImage(
+            PlayerEntity.texture,
+            0,
+            this.direction * this.height,
+            this.width,
+            this.height,
+            x,
+            y,
+            this.width,
+            this.height);
+        }
+    }
+
+    draw(ctx: CanvasRenderingContext2D, timestamp: number) {
+        if (PlayerEntity.texture !== null) {
+            ctx.drawImage(
+                PlayerEntity.texture,
+                0,
+                0,
+                this.width,
+                this.height,
+                this.x * this.width,
+                this.y * this.height,
+                this.width,
+                this.height);
+            }
+    }
+
+    drawDbg(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void {
+        // ctx.strokeStyle = "green";
+        // ctx.beginPath();
+        // ctx.rect(x, y, w, h);
+        // ctx.stroke();
+        ctx.fillStyle = "green";
+        ctx.fillRect(x * w, y * h, w, h);
+    }
+
+    lookTo(dir: PlayerDirection) {
+        this.direction = dir;
+    }
+
+}
+
+export class SimplePlayer extends PlayerEntity {
 
 }

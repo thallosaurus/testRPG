@@ -1,5 +1,6 @@
-import CanvasController from "./CanvasController.js";
+// import CanvasController from "./CanvasController.js";
 import Canvas, { Drawable } from "./CanvasController.js";
+import { ObjectRegistry } from "./ObjectRegistry.js";
 import Player, { Direction } from "./Sprite.js";
 // import Player from "./Sprite.js";
 
@@ -23,6 +24,8 @@ interface Level {
 
 export interface ResourceLoader {
     resolveSprites(): Promise<void>;
+    /*     textureUrl: string;
+        texture: HTMLImageElement | null; */
 }
 
 const MAPHEIGHT = 10;
@@ -30,7 +33,7 @@ const MAPWIDTH = 10;
 const TILEWIDTH = 64;
 const TILEHEIGHT = 64;
 export class World implements Drawable, ResourceLoader {
-    private parent: CanvasController;
+    private parent: Canvas;
 
     private map!: Array<Tile>;
 
@@ -204,7 +207,7 @@ export class World implements Drawable, ResourceLoader {
         return this.middleY * this.tileheight;
     }
 
-    constructor(mapWidth: number, mapHeight: number, url: string, spawnX: number, spawnY: number, parent: CanvasController) {
+    constructor(mapWidth: number, mapHeight: number, url: string, spawnX: number, spawnY: number, parent: Canvas) {
         // this.map = mapData;
         this.mw = mapWidth;
         this.mh = mapHeight;
@@ -247,7 +250,7 @@ export class World implements Drawable, ResourceLoader {
         });
     }
 
-    static loadMap(filename: string, parent: CanvasController) {
+    static loadMap(filename: string, parent: Canvas) {
         return new Promise<World>((res, rej) => {
             /*let d = [
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -424,7 +427,7 @@ interface TeleportEvents {
 }
 
 class ObjectsWorld extends World {
-    constructor(mapWidth: number, mapHeight: number, url: string, spawnX: number, spawnY: number, parent: CanvasController) {
+    constructor(mapWidth: number, mapHeight: number, url: string, spawnX: number, spawnY: number, parent: Canvas) {
         super(mapWidth, mapHeight, url, spawnX, spawnY, parent);
     }
 }
@@ -538,22 +541,49 @@ abstract class Builder {
     // build() : Promise<any> {};
 }
 
-export class SimpleMap implements ResourceLoader, Drawable {
-    mw: number;
-    mh: number;
+export interface Animate {
+    offsetX: number;
+    offsetY: number;
+    onAnimation(x: number, y: number): void;
+}
+
+export class SimpleMap implements ResourceLoader, Drawable, Animate {
+    width: number;
+    height: number;
     spriteUrl: string;
-    spriteWidth: number;
-    spriteHeight: number;
     // player: Player;
-    x_: number;
-    y_: number;
+    // x: number;
+    // y: number;
+    posX: number;
+    posY: number;
+    offsetX: number = 0;
+    offsetY: number = 0;
     // parent: CanvasController;
     textureUrl!: string;
     texture!: HTMLImageElement;
 
+    private spriteWidth: number;
+    private spriteHeight: number;
+
+    get x() {
+        return this.posX;
+    }
+
+    get y() {
+        return this.posY;
+    }
+
+    get visualX() {
+        return this.posX + this.offsetX;
+    }
+
+    get visualY() {
+        return this.posY + this.offsetY;
+    }
+
     loadedTiles: Array<null | SimpleTile>;
 
-    static build(filename: string, parent: CanvasController): Promise<Drawable> {
+    static build(filename: string, parent: Canvas): Promise<Drawable> {
         return new Promise<SimpleMap>((res, rej) => {
             /*let d = [
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -587,21 +617,68 @@ export class SimpleMap implements ResourceLoader, Drawable {
         });
     }
 
+    setOffset(x: number, y: number) {
+        this.offsetX = x;
+        this.offsetY = y;
+    }
+
+    get tileWidth() {
+        return this.spriteWidth;
+    }
+
+    get tileHeight() {
+        return this.spriteHeight;
+    }
+
+    /*
+    public getCanvasWidthTilesAvailable() {
+        return Math.floor(Canvas.canvas.width / 64);
+    }
+    */
+    get tilesAvailableY() {
+        return Canvas.height / this.tileHeight;
+    }
+
+    get tilesAvailableX() {
+        return Canvas.width / this.tileWidth;
+    }
+
+    private getAsMultiDimensionalArray() {
+        let b: Array<Array<SimpleTile | null>> = [];
+        for (let y = 0; y < this.height; y++) {
+            let a = [];
+            for (let x = 0; x < this.width; x++) {
+                let i = SimpleMap.getI(x, y, this.width);
+                a.push(this.loadedTiles[i]);
+            }
+            b.push(a);
+        }
+
+        return b;
+    }
+
     //TODO Interface JSON
     constructor(config: JSONConfig) {
         // this.map = mapData;
-        this.mw = config.width;
-        this.mh = config.height;
+        this.width = config.width;
+        this.height = config.height;
+        this.spriteHeight = 64;
+        this.spriteWidth = 64;
+
         this.spriteUrl = config.spritesheet;
         // this.player = new Player(this);
-        this.x_ = config.spawnX;
-        this.y_ = config.spawnY;
+        this.posX = config.spawnX;
+        this.posY = config.spawnY;
 
-        this.spriteHeight = 64;
         // this.spri
 
-        this.loadedTiles = new Array(this.mw * this.mh).fill(null);
+        this.loadedTiles = new Array(this.width * this.height).fill(null);
         // this.parent = parent;
+    }
+    onAnimation(x: number, y: number): void {
+        // throw new Error("Method not implemented.");
+        this.offsetX = x;
+        this.offsetY = y;
     }
 
     set map(m: Array<null | number>) {
@@ -618,32 +695,152 @@ export class SimpleMap implements ResourceLoader, Drawable {
                 this.textureUrl = URL.createObjectURL(blob);
                 img.src = this.textureUrl;
                 this.texture = img;
-                // res();
+                res();
                 // res(blob);
             });
         });
     }
 
     redraw(ctx: CanvasRenderingContext2D, timestamp: number): void {
-        // throw new Error("Method not implemented.");
-        /*         this.loadedTiles.forEach((e) => {
-                    e?.redraw(ctx, timestamp);
-                }); */
-//debugger;
-        for (let y = 0; y < this.mh; y++) {
-            for (let x = 0; x < this.mw; x++) {
-                let g = (this.loadedTiles[SimpleMap.getI(x, y, this.mw)] as MapDrawable);
-                // console.log(g);
+        let middleX = Math.floor(Canvas.width / this.spriteWidth / 2); // - this.x;
+        let middleY = Math.floor(Canvas.height / this.spriteHeight / 2); // - this.y;
+
+
+        let m = this.getArea(
+            this.x - middleX,
+            this.y - middleY,
+            this.tilesAvailableX,
+            this.tilesAvailableY);
+
+        let npcs = ObjectRegistry.getNPCinArea(
+            this.x - middleX,
+            this.y - middleY,
+            this.tilesAvailableX,
+            this.tilesAvailableY);
+        /*   
+                let npc = ObjectRegistry.getNPCinArea(
+                    this.x - middleX,
+                    this.y - middleY,
+                    this.tilesAvailableX,
+                    this.tilesAvailableY); */
+
+        // console.log(npc);
+        // for (let y = 0; y < this.width; )
+
+        for (let y = 0; y < this.tilesAvailableY; y++) {
+            for (let x = 0; x < this.tilesAvailableX; x++) {
+                // let g = (m[SimpleMap.getI(x, y, this.width)] as MapDrawable);
+                let i = SimpleMap.getI(x, y, this.tilesAvailableX);
+                let g = (m[i] as MapDrawable);
                 g?.drawAt(
                     ctx,
                     timestamp,
-                    x * this.mw,
-                    y * this.mh,
-                    this.mw,
-                    this.mh
+                    x * this.tileWidth + this.offsetX,
+                    y * this.tileHeight + this.offsetY,
+                    this.tileWidth,
+                    this.tileHeight
                 );
+
+                npcs[i]?.drawAt(
+                    ctx,
+                    timestamp,
+                    x * this.tileWidth + this.offsetX,
+                    y * this.tileHeight + this.offsetY,
+                    this.tileWidth,
+                    this.tileHeight);
+                // npcs[i]?.draw?.(ctx, timestamp);
             }
         }
+
+        /*         npc.forEach((n) => {
+                    n.draw?.(ctx, timestamp);
+                }); */
+    }
+
+    redrawDbg(ctx: CanvasRenderingContext2D, timestamp: number) {
+        let middleX = Math.floor(Canvas.width / this.spriteWidth / 2);
+        let middleY = Math.floor(Canvas.height / this.spriteHeight / 2);
+
+        let m = this.getArea(
+            this.x - middleX,
+            this.y - middleY,
+            this.tilesAvailableX,
+            this.tilesAvailableY);
+
+        let npcs = ObjectRegistry.getNPCinArea(
+            this.x - middleX,
+            this.y - middleY,
+            this.tilesAvailableX,
+            this.tilesAvailableY);
+
+        for (let y = 0; y < this.tilesAvailableY; y++) {
+            for (let x = 0; x < this.tilesAvailableX; x++) {
+                let i = SimpleMap.getI(x, y, this.tilesAvailableX);
+                let g = (m[i] as MapDrawable);
+                g?.drawDbg?.(
+                    ctx,
+                    timestamp,
+                    x * this.tileWidth + this.offsetX,
+                    y * this.tileHeight + this.offsetY,
+                    this.tileWidth,
+                    this.tileHeight
+                );
+
+                npcs[i]?.drawDbg?.(
+                    ctx,
+                    timestamp,
+                    x * this.tileWidth + this.offsetX,
+                    y * this.tileHeight + this.offsetY,
+                    this.tileWidth,
+                    this.tileHeight);
+            }
+        }
+
+        /*         let npcs = ObjectRegistry.getNPCinArea(
+                    this.x - middleX,
+                    this.y - middleY,
+                    this.tilesAvailableX,
+                    this.tilesAvailableY);
+                    npcs.forEach((e) => e.drawDbg()) */
+    }
+
+    public getAreaObj(v: Square) {
+        /*         let a = 
+                for (let y = v.y; y < v.h + v.y; y++) {
+                    for (let x = v.x; x < v.w + v.x; x++) {
+                        if (y < 0 || x < 0) 
+                    }
+                } */
+        throw new Error("Not implemented");
+    }
+
+    public getArea(x_: number, y_: number, width: number, height: number): Array<SimpleTile | null> {
+        let buf = Array<SimpleTile | null>();
+        for (let y = y_; y < height + y_; y++) {
+            for (let x = x_; x < width + x_; x++) {
+                let tile = this.getMapDataXY(x, y);
+                buf.push(tile);
+            }
+        }
+
+        // debugger;
+
+        return buf;
+    }
+
+    public getMapDataXY(x: number, y: number): SimpleTile | null {
+        if (x >= this.width || y >= this.height || x < 0 || y < 0) return null;
+
+        let index = SimpleMap.getI(x, y, this.width);
+        // if (index > this.loadedTiles.length) return null;
+        // console.log(index);
+        let data = this.loadedTiles[index];
+        if (data === undefined) return null;
+        return data;
+    }
+
+    public getSpritesheet() {
+        return this.texture;
     }
 
     static getXY(i: number, w: number, h: number): Vector2D {
@@ -653,7 +850,24 @@ export class SimpleMap implements ResourceLoader, Drawable {
     }
 
     static getI(x: number, y: number, w: number): number {
-        return getArrayIndexFromInt(x, y, x);
+        // return getArrayIndexFromInt(x, y, x);
+        return (y * w) + x;
+    }
+
+    public moveUp() {
+        this.posY++;
+    }
+
+    public moveDown() {
+        this.posY--;
+    }
+
+    public moveLeft() {
+        this.posX++;
+    }
+
+    public moveRight() {
+        this.posX--;
     }
 }
 
@@ -662,26 +876,70 @@ interface Vector2D {
     y: number
 }
 
-export interface MapDrawable {
-    drawAt(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void;
+interface Square extends Vector2D {
+    w: number;
+    h: number;
 }
 
-class SimpleTile implements MapDrawable {
-    constructor(id: number | null) {
+export interface MapDrawable {
+    drawAt(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void;
+    draw?(ctx: CanvasRenderingContext2D, timestamp: number): void;
+    drawDbg?(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void;
+}
 
+export interface MapObject extends MapDrawable {
+    id: number;
+    x: number;
+    y: number;
+}
+
+/* abstract class MapObjectClass {
+    id: string | null = null;
+    generateId() {
+        this.id = Math.random() * 100;
+    }
+} */
+
+class SimpleTile implements MapDrawable {
+    tileWidthSprite: number = 32;
+    tileHeightSprite: number = 32;
+    spriteId: number | null;
+    // spriteId: number | null;
+    constructor(id: number | null) {
+        this.spriteId = id;
     }
 
-    getTileWidth() {
-
+    get id() {
+        return this.spriteId;
     }
 
     drawAt(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void {
+        let o = ObjectRegistry.world.getSpritesheet();
+        if (this.spriteId !== null && this.hasImageLoaded(o)) {
+
+            let xy = SimpleMap.getXY((this.spriteId as any) /* ??????????????????????? HUH WTF*/.id, 30, 30);
+            ctx.drawImage(
+                o,
+                xy.x * this.tileWidthSprite,
+                xy.y * this.tileHeightSprite,
+                this.tileWidthSprite,
+                this.tileHeightSprite,
+                x, y, w, h);
+        }
+
+    }
+
+    drawDbg(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number) {
+        // console.log(x, y, w, h);
         ctx.strokeStyle = "red";
         ctx.beginPath();
         ctx.rect(x, y, w, h);
         ctx.stroke();
     }
 
+    private hasImageLoaded(img: any): img is HTMLImageElement {
+        return img !== null && img instanceof HTMLImageElement;
+    }
 }
 
 interface JSONConfig {
