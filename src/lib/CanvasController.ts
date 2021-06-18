@@ -1,6 +1,9 @@
-import { SimpleMap, World } from "./Map.js";
+import { AnimationController } from "./AnimationController.js";
+import { BlackoutAnimation } from "./BlackoutAnimation.js";
+import { SimpleMap } from "./Map.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
-import { PlayerEntity } from "./Sprite.js";
+import { PlayerEntity, SimplePlayer } from "./Sprite.js";
+
 
 let mouseStartX: number | null = null;
 let mouseStartY: number | null = null;
@@ -10,15 +13,18 @@ export default class Canvas implements Drawable {
     static canvas: HTMLCanvasElement;
     private readonly ctx: CanvasRenderingContext2D;
     // private map!: MapData;
-    private world!: World;
+    // private world!: World;
 
     // private lastFrame: number;
+
+    public isMoving = false;
 
     constructor(qSel: string = "canvas#game") {
         let c = document.querySelector(qSel);
         if (isValidCanvasElement(c)) {
             Canvas.canvas = c;
             this.ctx = Canvas.canvas.getContext("2d")!;
+            this.ctx.imageSmoothingEnabled = false;
         } else {
             throw qSel + " is not a valid Canvas Query String";
         }
@@ -26,42 +32,47 @@ export default class Canvas implements Drawable {
         window.addEventListener("keydown", (e) => {
             switch (e.key) {
                 case "o":
-                    // this.map.toggleObjectsRendering();
-                    let p = prompt("Level?");
-                    if (p !== null && p !== "") {
-                        this.changeWorld(p);
-                    };
+                    let g = prompt("Level?");
+                    (g !== "" && g !== null) && ObjectRegistry.goToLevel(g);
                     break;
-
                 case "Shift":
-                    this.world.startRunning();
+                    // this.world.startRunning();
                     break;
 
                 case "ArrowLeft":
                     // this.map.decreaseAreaX();
-                    ObjectRegistry.world.moveLeft();
+                    // ObjectRegistry.world.moveLeft();
+                    // AnimationController.mapMoveLeft();
+                    this.isMoving = true;
+                    ObjectRegistry.player.moveLeft();
                     break;
 
                 case "ArrowRight":
                     // this.map.increaseAreaX();
                     // this.world.incX();
-                    ObjectRegistry.world.moveRight();
+                    // ObjectRegistry.world.moveRight();
+                    // AnimationController.mapMoveRight();
+                    ObjectRegistry.player.moveRight();
                     break;
 
                 case "ArrowUp":
                     // this.map.decreaseAreaY();
                     // this.world.decY();
-                    ObjectRegistry.world.moveUp();
+                    // ObjectRegistry.world.moveUp();
+                    // AnimationController.mapMoveUp();
+                    ObjectRegistry.player.moveUp();
                     break;
 
                 case "ArrowDown":
                     // this.map.increaseAreaY();
                     // this.world.incY();
-                    ObjectRegistry.world.moveDown();
+                    // ObjectRegistry.world.moveDown();
+                    // AnimationController.mapMoveDown();
+                    ObjectRegistry.player.moveDown();
                     break;
 
                 case "Enter":
-                    this.world.tp();
+                    // this.world.tp();
                     break;
             }
         });
@@ -69,29 +80,34 @@ export default class Canvas implements Drawable {
         window.addEventListener("keyup", (e) => {
             switch (e.key) {
                 case "Shift":
-                    this.world.stopRunning();
+                    // this.world.stopRunning();
+                    break;
+
+                case "ArrowLeft":
+                case "ArrowRight":
+                case "ArrowUp":
+                case "ArrowDown":
+                    this.isMoving = false;
                     break;
             }
         });
 
-        window.addEventListener("mousedown", (event) => {
+        ObjectRegistry.DEBUG && window.addEventListener("mousedown", (event) => {
             mouseStartX = event.clientX;
             mouseStartY = event.clientY;
         });
 
-        window.addEventListener("mousemove", (event) => {
+        ObjectRegistry.DEBUG && window.addEventListener("mousemove", (event) => {
             if (mouseStartX !== null && mouseStartY !== null) {
                 let diffX = event.clientX - mouseStartX;
                 let diffY = event.clientY - mouseStartY;
-                // this.map.setCurrentAreaX(diffX / 320);
-                // this.map.setCurrentAreaY(diffY / 320);
                 ObjectRegistry.world.setOffset(diffX / 10, diffY / 10);
                 console.log(diffX, diffY);
             }
 
         });
 
-        window.addEventListener("mouseup", (event) => {
+        ObjectRegistry.DEBUG && window.addEventListener("mouseup", (event) => {
             mouseStartX = null;
             mouseStartY = null;
         });
@@ -119,18 +135,21 @@ export default class Canvas implements Drawable {
 
         ObjectRegistry.addToRenderQueue(this);
 
-        let s = await SimpleMap.build("level0.json", this);
+        let s = await SimpleMap.build("level0.json");
         ObjectRegistry.addToRenderQueue(s);
 
-        let player = new PlayerEntity(0, 0);
-        ObjectRegistry.addToMap(player);
+        let npc1 = new PlayerEntity(0, 0);
+        ObjectRegistry.addToMap(npc1);
 
-        let player1 = new PlayerEntity(2, 2);
-        ObjectRegistry.addToMap(player1);
-        // ObjectRegistry.addToRenderQueue(await World.loadMap("level0.json", this));
-        // debugger;
+        let npc2 = new PlayerEntity(2, 2);
+        ObjectRegistry.addToMap(npc2);
+
+        let blackout = new BlackoutAnimation();
+        ObjectRegistry.addToRenderQueue(blackout);
 
         ObjectRegistry.resolveAllSprites();
+
+        AnimationController.hideBlackoutAnimation();
     }
 
     /**
@@ -148,22 +167,6 @@ export default class Canvas implements Drawable {
         return Math.floor(Canvas.canvas.height / 64);
     }
 
-    /**
-     * 
-     * @deprecated
-     */
-    async loadStuff(levelname: string) {
-        // this.map = await MapData.loadMap("level1.json", this);
-        this.world = await World.loadMap(levelname, this);
-        Promise.all([
-            // this.map.resolveSprites()
-            this.world.resolveSprites()
-        ]).then(e => {
-            //loading has finished, start the game
-            this.startGame();
-        });
-    }
-
     public startGame(): number {
         return requestAnimationFrame(this.draw.bind(this));
     }
@@ -177,22 +180,13 @@ export default class Canvas implements Drawable {
         ObjectRegistry.renderToContext(this.ctx, ts);
         requestAnimationFrame(this.draw.bind(this));
     }
-
-    /**
-     * 
-     * @deprecated
-     */
-    public changeWorld(level: string) {
-        this.world.unloadWorld();
-        this.loadStuff(level);
-    }
 }
 
 export interface Drawable {
     redraw(ctx: CanvasRenderingContext2D, timestamp: number): void;
     redrawDbg?(ctx: CanvasRenderingContext2D, timestamp: number): void;
-/*     textureUrl: string;
-    texture: HTMLImageElement; */
+    /*     textureUrl: string;
+        texture: HTMLImageElement; */
 }
 
 function isValidCanvasElement(canvas: Element | null): canvas is HTMLCanvasElement {
@@ -202,4 +196,3 @@ function isValidCanvasElement(canvas: Element | null): canvas is HTMLCanvasEleme
 
     return false;
 }
-
