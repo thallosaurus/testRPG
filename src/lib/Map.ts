@@ -136,6 +136,7 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
 
                 let w = new SimpleMap(json);
                 w.map = json.mapped; //.map((e: any) => new SimpleTile(e));
+                w.objects = json.objects;
                 // w.map_ = d_final;
                 // w.addLayer(d_final);
 
@@ -174,20 +175,6 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
         return Canvas.width / this.tileWidth;
     }
 
-    private getAsMultiDimensionalArray() {
-        let b: Array<Array<SimpleTile | null>> = [];
-        for (let y = 0; y < this.height; y++) {
-            let a = [];
-            for (let x = 0; x < this.width; x++) {
-                let i = SimpleMap.getI(x, y, this.width);
-                a.push(this.loadedTiles[i]);
-            }
-            b.push(a);
-        }
-
-        return b;
-    }
-
     //TODO Interface JSON
     constructor(config: JSONConfig) {
         // this.map = mapData;
@@ -214,6 +201,8 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
     unloadSprites(): void {
         // throw new Error("Method not implemented.");
         URL.revokeObjectURL(this.textureUrl);
+        console.log(this.textureUrl)
+        // this.textureUrl = "";
     }
 
     spawnPlayer() {
@@ -266,18 +255,15 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
         for (let y = this.y; y < this.tilesAvailableY + 2; y++) {
             for (let x = this.x; x < this.tilesAvailableX + 2; x++) {
                 // [
-                    let d = this.getMapDataXY(x - this.x, y - this.y);
-                    this.drawToMap(ctx, d, x, y, timestamp);
-                    // Draw objects on the ground here in this line
-                    // ObjectRegistry.getNPCinXY(x - this.x, y - this.y)
-                // ].forEach((e) => {
-                // });
+                let d = this.getMapDataXY(x - this.x, y - this.y);
+                this.drawToMap(ctx, d, x, y, timestamp);
             }
         }
 
         for (let y = this.y; y < this.tilesAvailableY + 2; y++) {
             for (let x = this.x; x < this.tilesAvailableX + 2; x++) {
                 this.drawToMap(ctx, this.getTeleportsXYTile(x - this.x, y - this.y), x, y, timestamp);
+                this.drawToMap(ctx, this.getObjectsXY(x - this.x, y - this.y), x, y, timestamp);
                 let npc = ObjectRegistry.getNPCinXY(x - this.x, y - this.y)
                 this.drawToMap(ctx, npc, x, y, timestamp);
             }
@@ -292,15 +278,13 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
         object?.drawAt(
             ctx,
             timestamp,
-            // x * this.tileWidth + this.offsetX,
-            // y * this.tileHeight + this.offsetY,
             (x * this.tileWidth) + this.visualOffsetX + this.middleX,
             (y * this.tileHeight) + this.visualOffsetY + this.middleY,
             this.tileWidth,
             this.tileHeight);
 
         ObjectRegistry.DEBUG
-        &&    object?.drawDbg?.(
+            && object?.drawDbg?.(
                 ctx,
                 timestamp,
                 (x * this.tileWidth) + this.visualOffsetX + this.middleX,
@@ -348,24 +332,34 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
         return this.loadedTeleports;
     }
 
-    public getTeleportsXY(x:number, y:number): TeleportEvents | null {
-        for(let n of this.getTeleports()) {
-        //   console.log(n);
-          if (n.x === x && n.y === y) {
-            // console.log(n);
-            return n;
-          }
+    public getTeleportsXY(x: number, y: number): TeleportEvents | null {
+        for (let n of this.getTeleports()) {
+            //   console.log(n);
+            if (n.x === x && n.y === y) {
+                // console.log(n);
+                return n;
+            }
         }
-    
-        return null;
-      }
 
-    public getTeleportsXYTile(x:number, y:number) : MapDrawable | null {
-        if (this.getTeleportsXY(x,y) !== null) {
+        return null;
+    }
+
+    public getTeleportsXYTile(x: number, y: number): MapDrawable | null {
+        if (this.getTeleportsXY(x, y) !== null) {
             return new SimpleTile(657);
         }
 
         return null;
+    }
+
+    private getObjectsXY(x: number, y: number) {
+        if (x >= this.width || y >= this.height || x < 0 || y < 0) return null;
+
+        let index = SimpleMap.getI(x, y, this.width);
+
+        let data = this.loadedObjects[index];
+        if (data === undefined) return null;
+        return data;
     }
 
     public getSpritesheet() {

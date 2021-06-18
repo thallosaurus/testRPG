@@ -144,7 +144,6 @@ export class SimplePlayer extends PlayerEntity {
         if (tp !== null) {
             ObjectRegistry.goToLevel(tp!.destination);
         }
-        // console.log(tp);
     }
 
     public async moveUp() {

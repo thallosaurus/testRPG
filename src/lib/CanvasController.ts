@@ -2,7 +2,7 @@ import { AnimationController } from "./AnimationController.js";
 import { BlackoutAnimation } from "./BlackoutAnimation.js";
 import { SimpleMap } from "./Map.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
-import { PlayerEntity, SimplePlayer } from "./Sprite.js";
+import { PlayerDirection, PlayerEntity, SimplePlayer } from "./Sprite.js";
 
 
 let mouseStartX: number | null = null;
@@ -18,6 +18,7 @@ export default class Canvas implements Drawable {
     // private lastFrame: number;
 
     public isMoving = false;
+    public direction = -1;
 
     constructor(qSel: string = "canvas#game") {
         let c = document.querySelector(qSel);
@@ -46,34 +47,26 @@ export default class Canvas implements Drawable {
                     break;
 
                 case "ArrowLeft":
-                    // this.map.decreaseAreaX();
-                    // ObjectRegistry.world.moveLeft();
-                    // AnimationController.mapMoveLeft();
                     this.isMoving = true;
+                    this.direction = PlayerDirection.LEFT;
                     ObjectRegistry.player.moveLeft();
                     break;
 
                 case "ArrowRight":
-                    // this.map.increaseAreaX();
-                    // this.world.incX();
-                    // ObjectRegistry.world.moveRight();
-                    // AnimationController.mapMoveRight();
+                    this.isMoving = true;
+                    this.direction = PlayerDirection.RIGHT;
                     ObjectRegistry.player.moveRight();
                     break;
 
                 case "ArrowUp":
-                    // this.map.decreaseAreaY();
-                    // this.world.decY();
-                    // ObjectRegistry.world.moveUp();
-                    // AnimationController.mapMoveUp();
+                    this.isMoving = true;
+                    this.direction = PlayerDirection.UP;
                     ObjectRegistry.player.moveUp();
                     break;
 
                 case "ArrowDown":
-                    // this.map.increaseAreaY();
-                    // this.world.incY();
-                    // ObjectRegistry.world.moveDown();
-                    // AnimationController.mapMoveDown();
+                    this.isMoving = true;
+                    this.direction = PlayerDirection.DOWN;
                     ObjectRegistry.player.moveDown();
                     break;
 
@@ -126,6 +119,10 @@ export default class Canvas implements Drawable {
         this.startGame();
     }
 
+    static movePlayer() {
+        
+    }
+
     static get width() {
         return Canvas.canvas.width;
     }
@@ -148,12 +145,12 @@ export default class Canvas implements Drawable {
 
         let s = await SimpleMap.build("level0.json");
         ObjectRegistry.addToRenderQueue(s);
-
+/* 
         let npc1 = new PlayerEntity(0, 0);
         ObjectRegistry.addToMap(npc1);
 
         let npc2 = new PlayerEntity(2, 2);
-        ObjectRegistry.addToMap(npc2);
+        ObjectRegistry.addToMap(npc2); */
 
         let blackout = new BlackoutAnimation();
         ObjectRegistry.addToRenderQueue(blackout);
