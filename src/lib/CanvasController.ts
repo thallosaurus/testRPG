@@ -24,6 +24,12 @@ export default class Canvas implements Drawable {
         if (isValidCanvasElement(c)) {
             Canvas.canvas = c;
             this.ctx = Canvas.canvas.getContext("2d")!;
+
+            window.onresize = () => {
+                this.updateCanvasSize();
+            }
+            this.updateCanvasSize();
+
             this.ctx.imageSmoothingEnabled = false;
         } else {
             throw qSel + " is not a valid Canvas Query String";
@@ -126,6 +132,11 @@ export default class Canvas implements Drawable {
 
     static get height() {
         return Canvas.canvas.height;
+    }
+
+    private updateCanvasSize() {
+        Canvas.canvas.setAttribute("width", window.innerWidth + "px");
+        Canvas.canvas.setAttribute("height", window.innerHeight + "px");
     }
 
     private async addObjectsToRenderQueue() {
