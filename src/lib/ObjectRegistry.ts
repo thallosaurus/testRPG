@@ -1,6 +1,7 @@
 import { AnimationController } from "./AnimationController.js";
 import Canvas, { Drawable } from "./CanvasController.js";
 import { Animate, MapDrawable, MapObject, ResourceLoader, SimpleMap } from './Map.js';
+import { MobileController } from "./MobileController.js";
 import { PlayerEntity, SimplePlayer } from "./Sprite.js";
 
 
@@ -12,6 +13,7 @@ export class ObjectRegistry {
   static canvasControllerId: number = -1;
   static worldId: number = -1;
   static playerId: number = -1;
+  static mobileControllerId: number = -1;
 
   static get world(): SimpleMap {
     return this.renderQueue[this.worldId] as SimpleMap;
@@ -25,9 +27,15 @@ export class ObjectRegistry {
     return this.renderQueue[this.canvasControllerId] as Canvas;
   }
 
+  static get mobileController(): MobileController | null {
+    if (this.renderQueue[this.mobileControllerId] === undefined) return null;
+    return this.renderQueue[this.mobileControllerId] as MobileController;
+  }
+
   static addToRenderQueue(obj: Drawable): number {
     if (obj instanceof SimpleMap) this.worldId = this.renderQueue.length;
     if (obj instanceof Canvas) this.canvasControllerId = this.renderQueue.length;
+    if (obj instanceof MobileController) this.mobileControllerId = this.renderQueue.length;
     this.renderQueue.push(obj);
     return this.renderQueue.length - 1;
     // debugger;
@@ -42,7 +50,7 @@ export class ObjectRegistry {
   static renderToContext(ctx: CanvasRenderingContext2D, timestamp: number) {
     for (let q of this.renderQueue) {
       q.redraw(ctx, timestamp);
-      // if (DEBUG) q.redrawDbg?.(ctx, timestamp);
+      if (this.DEBUG) q.redrawDbg?.(ctx, timestamp);
     }
     // debugger;
   }

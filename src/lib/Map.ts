@@ -1,7 +1,7 @@
 // import CanvasController from "./CanvasController.js";
 import Canvas, { Drawable } from "./CanvasController.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
-import { PlayerDirection, SimplePlayer } from "./Sprite.js";
+import { SimplePlayer } from "./Sprite.js";
 // import Player from "./Sprite.js";
 
 const TILEMAXWIDTH = 30;
@@ -116,34 +116,14 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
 
     static build(filename: string): Promise<SimpleMap> {
         return new Promise<SimpleMap>((res, rej) => {
-            /*let d = [
-                1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                1, 0, 8, 0, 0, 0, 0, 0, 0, 1,
-                1, 0, 3, 0, 0, 0, 0, 0, 0, 1,
-                1, 0, 0, 5, 0, 0, 0, 0, 0, 1,
-                1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                1, 0, 0, 0, 4, 0, 0, 0, 0, 1,
-                1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                1, 1, 1, 1, 1, 1, 1, 1, 1, 5
-            ];*/
-
             fetch("/assets/levels/" + filename).then(e => {
                 return e.json();
-            }).then(json => {
+            }).then((json: TiledJSONLevel) => {
                 console.log(json);
 
                 let w = new SimpleMap(json);
-                w.map = json.mapped; //.map((e: any) => new SimpleTile(e));
-                w.objects = json.objects;
-                // w.map_ = d_final;
-                // w.addLayer(d_final);
-
-                // let o = new World(json.width, json.height, json.spritesheet, json.spawnX, json.spawnY, parent);
-                // let o_final = json.objects.map((e: any) => new Tile(e, w));
-                // w.addLayer(o_final);
-                // w.addTeleports(json.teleports);
+                // console.log(o);
+                // w.objects = o;
                 res(w);
             });
         });
@@ -176,24 +156,42 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
     }
 
     //TODO Interface JSON
-    constructor(config: JSONConfig) {
+    constructor(config: TiledJSONLevel/* config: JSONConfig */) {
         // this.map = mapData;
         this.width = config.width;
         this.height = config.height;
-        this.spriteHeight = 64;
-        this.spriteWidth = 64;
+        this.spriteHeight = config.tileheight * 2;
+        this.spriteWidth = config.tilewidth * 2;
 
-        this.spriteUrl = config.spritesheet;
+        this.spriteUrl = /* config.spritesheet */ "/assets/maps/test.png";
         // this.player = new Player(this);
-        this.posX = config.spawnX * -1;
-        this.posY = config.spawnY * -1;
 
         // this.spri
         // console.log(config);
 
         this.loadedTiles = new Array(this.width * this.height).fill(null);
         this.loadedObjects = new Array(this.width * this.height).fill(null);
-        this.loadedTeleports = config.teleports;
+        this.loadedTeleports = [];/* config.teleports */;
+
+        this.map = getData("ground", config.layers);
+        this.objects = getData("objects", config.layers);
+        // this.teleports = getTeleports();
+
+        console.log(config);
+
+        // let spawnX = getDataProperties("spawnX", this.map)
+        let spawnX = getPropertiesData("spawnX",
+            getData("ground", config.layers).properties
+        );
+
+        // let spawnX = getDataProperties("spawnX", this.map)
+        let spawnY = getPropertiesData("spawnY",
+            getData("ground", config.layers).properties
+        );
+
+        this.posX = spawnX.value * -1;
+        this.posY = spawnY.value * -1;
+
         this.spawnPlayer();
         // this.parent = parent;
     }
@@ -216,13 +214,13 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
         // this.offsetY = y;
     }
 
-    set map(m: Array<null | number>) {
-        this.loadedTiles = m.map((t) => { return new SimpleTile(t) });
+    set map(m: TiledJSONLevelLayer) {
+        this.loadedTiles = m.data.map((t) => { return new SimpleTile(t) });
         // console.log(this.loadedTiles);
     }
 
-    set objects(m: Array<null | number>) {
-        this.loadedObjects = m.map((t) => { return new SimpleTile(t) });
+    set objects(m: TiledJSONLevelLayer) {
+        this.loadedObjects = m.data.map((t) => { return new SimpleTile(t) });
         // console.log(this.loadedObjects);
     }
 
@@ -429,7 +427,11 @@ export class SimpleTile implements MapDrawable {
     spriteId: number | null = null;
     // spriteId: number | null;
     constructor(id: number | null) {
-        this.spriteId = id;
+        if (id && id !== 0) {
+            this.spriteId = id - 1;
+        } else {
+            this.spriteId = null;
+        }
         // console.trace(id);
     }
 
@@ -491,3 +493,63 @@ interface JSONConfig {
         }
     ]*/
 }
+
+interface TiledJSONLevel {
+    compressionlevel: number;
+    height: number;
+    width: number;
+    infinite: boolean;
+    layers: Array<TiledJSONLevelLayer>;
+    // nextlayerid: number;
+    // nextobjectid: number;
+    // orientation: string;
+    // renderorder: string;
+    tiledversion: string;
+    tileheight: number;
+    tilewidth: number;
+    // tilesets: number;
+    type: string;
+    version: string;
+}
+
+interface TiledJSONLevelLayer {
+    data: Array<number>;
+    // height: number;
+    // width: number;
+    id: number;
+    name: string;
+    opacity: number;
+    type: string;
+    visible: boolean;
+    x: number;
+    y: number;
+    properties: Array<TiledJSONLevelLayerProperties>;
+}
+
+interface TiledJSONLevelLayerProperties {
+    /*     {
+            "name": "spawnX",
+            "type": "int",
+            "value": 10
+     }, */
+    name: string;
+    value: number;
+}
+
+function getData(name: string, layers: Array<TiledJSONLevelLayer>): TiledJSONLevelLayer {
+    for (let layer of layers) {
+        if (layer.name === name && layer.type === "tilelayer") return layer;
+    }
+    throw new Error(name + " data couldn't be found");
+}
+
+function getPropertiesData(name: string, layers: Array<TiledJSONLevelLayerProperties>): TiledJSONLevelLayerProperties {
+    for (let layer of layers) {
+        if (layer.name === name) return layer;
+    }
+    throw new Error(name + " data couldn't be found");
+}
+
+/* function getTeleports(config: Array<) {
+
+} */

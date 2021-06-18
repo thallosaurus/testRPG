@@ -1,6 +1,7 @@
 import { AnimationController } from "./AnimationController.js";
 import { BlackoutAnimation } from "./BlackoutAnimation.js";
 import { SimpleMap } from "./Map.js";
+import { MobileController } from "./MobileController.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
 import { PlayerDirection, PlayerEntity, SimplePlayer } from "./Sprite.js";
 
@@ -24,11 +25,21 @@ export default class Canvas implements Drawable {
         let c = document.querySelector(qSel);
         if (isValidCanvasElement(c)) {
             Canvas.canvas = c;
+            Canvas.canvas.oncontextmenu = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+           };
             this.ctx = Canvas.canvas.getContext("2d")!;
 
             window.onresize = () => {
                 this.updateCanvasSize();
             }
+
+            window.onorientationchange = () => {
+                this.updateCanvasSize();
+                ObjectRegistry.mobileController?.updateTouchEvents();
+            };
             this.updateCanvasSize();
 
             this.ctx.imageSmoothingEnabled = false;
@@ -143,7 +154,7 @@ export default class Canvas implements Drawable {
 
         ObjectRegistry.addToRenderQueue(this);
 
-        let s = await SimpleMap.build("level0.json");
+        let s = await SimpleMap.build("unbenannt1.json");
         ObjectRegistry.addToRenderQueue(s);
 /* 
         let npc1 = new PlayerEntity(0, 0);
@@ -154,6 +165,9 @@ export default class Canvas implements Drawable {
 
         let blackout = new BlackoutAnimation();
         ObjectRegistry.addToRenderQueue(blackout);
+
+        let mobileInput = new MobileController();
+        if (isPhone()) ObjectRegistry.addToRenderQueue(mobileInput);
 
         ObjectRegistry.resolveAllSprites();
 
@@ -203,4 +217,8 @@ function isValidCanvasElement(canvas: Element | null): canvas is HTMLCanvasEleme
     }
 
     return false;
+}
+
+function isPhone() {
+    return navigator.userAgent.toLowerCase().match(/mobile/i);
 }
