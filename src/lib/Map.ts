@@ -230,9 +230,9 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
 
         let msg = await SocketConnection.getPlayersOnMap(this.mapName);
 
-        for (let m of msg) {
+/*         for (let m of msg) {
             console.log(m);
-        }
+        } */
 
         console.log(msg);
     }
