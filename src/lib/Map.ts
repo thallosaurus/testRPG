@@ -1,6 +1,7 @@
 // import CanvasController from "./CanvasController.js";
 import Canvas, { Drawable } from "./CanvasController.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
+import { SocketConnection } from "./SocketConnection.js";
 import { SimplePlayer } from "./Sprite.js";
 // import Player from "./Sprite.js";
 
@@ -91,6 +92,8 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
     // teleports: any;
     loadedTeleports: Array<TeleportEvents>;
 
+    public mapName!: string;
+
     get x() {
         return this.posX;
     }
@@ -122,6 +125,7 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
                 console.log(json);
 
                 let w = new SimpleMap(json);
+                w.mapName = filename;
                 // console.log(o);
                 // w.objects = o;
                 res(w);
@@ -207,7 +211,6 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
             } as TeleportEvents;
             tBuf.push(obj);
         }
-
         this.teleports = tBuf;
 
         this.spawnPlayer();
@@ -221,9 +224,17 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
         // this.textureUrl = "";
     }
 
-    spawnPlayer() {
+    async spawnPlayer() {
         let player = new SimplePlayer(this.posX * -1, this.posY * -1);
         ObjectRegistry.addToMap(player);
+
+        let msg = await SocketConnection.getPlayersOnMap(this.mapName);
+
+        for (let m of msg) {
+            console.log(m);
+        }
+
+        console.log(msg);
     }
 
     onAnimation(x: number, y: number): void {

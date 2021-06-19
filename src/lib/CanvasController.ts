@@ -3,6 +3,7 @@ import { BlackoutAnimation } from "./BlackoutAnimation.js";
 import { SimpleMap } from "./Map.js";
 import { MobileController } from "./MobileController.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
+import { SocketConnection } from "./SocketConnection.js";
 import { PlayerDirection, PlayerEntity, SimplePlayer } from "./Sprite.js";
 
 
@@ -129,6 +130,8 @@ export default class Canvas implements Drawable {
             mouseStartX = null;
             mouseStartY = null;
         });
+
+        SocketConnection.setupSockets();
 
         // this.loadStuff("level2.json");
 
