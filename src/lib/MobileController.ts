@@ -9,6 +9,9 @@ export class MobileController implements Drawable, ResourceLoader {
 
     touchEvents: Array<TouchEventDpad> = [];
 
+    mouseeventX: number | null = null;
+    mouseeventY: number | null = null;
+
     get dpadX() {
         return 0;
     }
@@ -27,28 +30,16 @@ export class MobileController implements Drawable, ResourceLoader {
 
     constructor() {
         window.addEventListener("touchstart", (event) => {
-            // if (event.clientX)
-            // console.log(event);
-            // alert("touch");
-
-            for (let t of event.changedTouches) {
-                if (t.clientX < 160 && t.clientY > Canvas.height - 160) {
-                    this.processTouchOnDpad(event);
-                }
-            }
+            this.process(event);
         });
 
-        window.addEventListener("mousedown", (event) => {
-            // alert("touch");
+        window.addEventListener("mousedown", this.process.bind(this));
 
-            // alert(event.clientX + " " + event.clientY);
-
-            // for (let t of event) {
-                if (event.clientX < 160 && event.clientY > Canvas.height - 160) {
-                    this.processClickOnDpad(event);
-                }
-            // }
+        window.addEventListener("mouseup", (event) => {
+            this.mouseeventX = null;
+            this.mouseeventY = null;
         });
+
         this.updateTouchEvents();
     }
 
@@ -61,14 +52,31 @@ export class MobileController implements Drawable, ResourceLoader {
         this.addTouchHandler(this.dpadX, this.dpadY + this.dpadHeight / 3, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadLeft.bind(this));    //left
     }
 
+    public process(event: MouseEvent | TouchEvent) {
+
+        let x = (event as MouseEvent).clientX ?? (event as TouchEvent).changedTouches[0].clientX;
+        let y = (event as MouseEvent).clientY ?? (event as TouchEvent).changedTouches[0].clientY;
+        if (x < 160 && y > Canvas.height - 160) {
+            if (event instanceof MouseEvent) {
+                this.processClickOnDpad(event);
+            } else {
+                this.processTouchOnDpad(event);
+            }
+
+            this.mouseeventX = x;
+            this.mouseeventY = y;
+
+        }
+    }
+
     processClickOnDpad(touch: MouseEvent) {
         // for (let touch of event.touches) {
-            for (let i of this.touchEvents) {
-                if (i.x < touch.clientX && i.y < touch.clientY && touch.clientX < i.x + i.width && touch.clientY < i.y + i.height) {
-                    // alert("touch");
-                    // this.vibrate();
-                    i.callback();
-                }
+        for (let i of this.touchEvents) {
+            if (i.x < touch.clientX && i.y < touch.clientY && touch.clientX < i.x + i.width && touch.clientY < i.y + i.height) {
+                // alert("touch");
+                this.vibrate();
+                i.callback();
+            }
             // }
         }
     }
@@ -78,7 +86,7 @@ export class MobileController implements Drawable, ResourceLoader {
             for (let i of this.touchEvents) {
                 if (i.x < touch.clientX && i.y < touch.clientY && touch.clientX < i.x + i.width && touch.clientY < i.y + i.height) {
                     // alert("touch");
-                    // this.vibrate();
+                    this.vibrate();
                     i.callback();
                 }
             }
@@ -134,6 +142,9 @@ export class MobileController implements Drawable, ResourceLoader {
 
     private dpadUp() {
         // console.log("up");
+/*         while (this.mouseeventX !== null && this.mouseeventY !== null) {
+            alert("oh");
+        } */
         ObjectRegistry.player.moveUp();
     }
 

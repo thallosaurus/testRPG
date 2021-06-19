@@ -37,9 +37,17 @@ export default class Canvas implements Drawable {
             }
 
             window.onorientationchange = () => {
+                // alert("ok");
                 this.updateCanvasSize();
                 ObjectRegistry.mobileController?.updateTouchEvents();
             };
+
+            Canvas.canvas.addEventListener("contextmenu", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                alert("fuck");
+                return false;
+            })
             this.updateCanvasSize();
 
             this.ctx.imageSmoothingEnabled = false;

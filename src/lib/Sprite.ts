@@ -147,12 +147,15 @@ export class SimplePlayer extends PlayerEntity {
     }
 
     public async moveUp() {
-        if (this.movementBlocked) return;
-        !AnimationController.isMoving && this.lookTo(PlayerDirection.UP);
-        let o = ObjectRegistry.getXYAllLayers(this.x, this.y - 1);
-        this.check(o) &&
-            await AnimationController.mapMoveUp();
-        this.teleportIfNeeded();
+        return new Promise<void>(async (res, rej) => {
+            if (this.movementBlocked) return;
+            !AnimationController.isMoving && this.lookTo(PlayerDirection.UP);
+            let o = ObjectRegistry.getXYAllLayers(this.x, this.y - 1);
+            this.check(o) &&
+                await AnimationController.mapMoveUp();
+                res();
+            this.teleportIfNeeded();
+        });
     }
 
     public async moveDown() {

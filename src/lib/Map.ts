@@ -173,24 +173,42 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
         this.loadedObjects = new Array(this.width * this.height).fill(null);
         this.loadedTeleports = [];/* config.teleports */;
 
-        this.map = getData("ground", config.layers);
-        this.objects = getData("objects", config.layers);
+        this.map = getData("ground", config.layers) as TiledJSONLevelLayer;
+        this.objects = getData("objects", config.layers) as TiledJSONLevelLayer;
         // this.teleports = getTeleports();
 
         console.log(config);
 
         // let spawnX = getDataProperties("spawnX", this.map)
         let spawnX = getPropertiesData("spawnX",
-            getData("ground", config.layers).properties
+            (getData("ground", config.layers) as TiledJSONLevelLayer).properties
         );
 
         // let spawnX = getDataProperties("spawnX", this.map)
         let spawnY = getPropertiesData("spawnY",
-            getData("ground", config.layers).properties
+            (getData("ground", config.layers) as TiledJSONLevelLayer).properties
         );
 
         this.posX = spawnX.value * -1;
         this.posY = spawnY.value * -1;
+
+        let teleports = getData("teleporters", config.layers) as TiledJSONObjectLayer;
+        console.log(teleports);
+
+        //prepare teleport events:
+        let tBuf = [];
+        for (let o of teleports.objects) {
+            let destProperty = getPropertiesData("destination", o.properties);
+            let obj = {
+                x: Math.floor((o.x / (this.tileWidth / 2))),
+                y: Math.floor((o.y / (this.tileHeight / 2))),
+                destination: (destProperty.value as string),
+                id: null
+            } as TeleportEvents;
+            tBuf.push(obj);
+        }
+
+        this.teleports = tBuf;
 
         this.spawnPlayer();
         // this.parent = parent;
@@ -344,7 +362,7 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
 
     public getTeleportsXYTile(x: number, y: number): MapDrawable | null {
         if (this.getTeleportsXY(x, y) !== null) {
-            return new SimpleTile(657);
+            return new SimpleTile(658);
         }
 
         return null;
@@ -526,6 +544,82 @@ interface TiledJSONLevelLayer {
     properties: Array<TiledJSONLevelLayerProperties>;
 }
 
+/*
+                     "draworder": "topdown",
+                     "id": 8,
+                     "name": "teleporters",
+                     "objects": [
+                            {
+                                   "height": 0,
+                                   "id": 10,
+                                   "name": "",
+                                   "properties": [
+                                          {
+                                                 "name": "destination",
+                                                 "type": "string",
+                                                 "value": "level0.json"
+                                          }
+                                   ],
+                                   "rotation": 0,
+                                   "type": "",
+                                   "visible": true,
+                                   "width": 0,
+                                   "x": 81.3333333333333,
+                                   "y": 110.666666666667
+                            }
+                     ],
+                     "opacity": 1,
+                     "type": "objectgroup",
+                     "visible": true,
+                     "x": 0,
+                     "y": 0
+              },
+*/
+interface TiledJSONObjectLayer {
+    draworder: string;
+    id: number;
+    name: string;
+    objects: Array<TiledJSONObject>;
+    opacity: number;
+    type: string;
+    visible: boolean;
+    x: number;
+    y: number;
+}
+
+/*
+{
+                                   "height": 0,
+                                   "id": 10,
+                                   "name": "",
+                                   "properties": [
+                                          {
+                                                 "name": "destination",
+                                                 "type": "string",
+                                                 "value": "level0.json"
+                                          }
+                                   ],
+                                   "rotation": 0,
+                                   "type": "",
+                                   "visible": true,
+                                   "width": 0,
+                                   "x": 81.3333333333333,
+                                   "y": 110.666666666667
+                            }
+*/
+interface TiledJSONObject {
+    height: number;
+    id: number;
+    name: string;
+    properties: Array<TiledJSONLevelLayerProperties>;
+    rotation: number;
+    type: string;
+    visible: true;
+    width: number;
+    x: number;
+    y: number;
+}
+
 interface TiledJSONLevelLayerProperties {
     /*     {
             "name": "spawnX",
@@ -533,12 +627,12 @@ interface TiledJSONLevelLayerProperties {
             "value": 10
      }, */
     name: string;
-    value: number;
+    value: any;
 }
 
-function getData(name: string, layers: Array<TiledJSONLevelLayer>): TiledJSONLevelLayer {
+function getData(name: string, layers: Array<TiledJSONLevelLayer>): TiledJSONLevelLayer | TiledJSONObjectLayer {
     for (let layer of layers) {
-        if (layer.name === name && layer.type === "tilelayer") return layer;
+        if (layer.name === name) return layer;
     }
     throw new Error(name + " data couldn't be found");
 }

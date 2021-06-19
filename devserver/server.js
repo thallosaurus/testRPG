@@ -20,7 +20,7 @@ const WEBMANIFEST = {
     "start_url": "https://prismflux.de/",
     "scope": "https://prismflux.de/",
     "display": "standalone",
-    "orientation": "portrait-primary"
+    "orientation": "landscape-primary"
 }
 
 app.use("/js", (req, res, next) => {

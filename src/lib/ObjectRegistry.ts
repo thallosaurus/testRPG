@@ -5,10 +5,15 @@ import { MobileController } from "./MobileController.js";
 import { PlayerEntity, SimplePlayer } from "./Sprite.js";
 
 
+function getDebug() {
+  let URL = new URLSearchParams(window.location.search);
+  return URL.get("debug") === "1";
+}
+
 export class ObjectRegistry {
   static renderQueue: Array<Drawable> = new Array<Drawable>();
   static mapObjects: Array<MapObject> = new Array<MapObject>();
-  static readonly DEBUG = false;
+  static readonly DEBUG = getDebug();
 
   static canvasControllerId: number = -1;
   static worldId: number = -1;
