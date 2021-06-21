@@ -10,17 +10,26 @@ import { PlayerDirection, PlayerEntity, SimplePlayer } from "./Sprite.js";
 let mouseStartX: number | null = null;
 let mouseStartY: number | null = null;
 
-export default class Canvas implements Drawable {
 
+export default class Canvas implements Drawable {
+    
     static canvas: HTMLCanvasElement;
     private readonly ctx: CanvasRenderingContext2D;
     // private map!: MapData;
     // private world!: World;
 
-    // private lastFrame: number;
+    private lastFrame: number = 0;
 
     public isMoving = false;
     public direction = -1;
+
+    static get targetFPS() {
+        return 30;
+    }
+
+    static get minimalRedrawTime() {
+        return (1000/60) * (60 / this.targetFPS) -(1000/60) * 0.5;
+    }
 
     constructor(qSel: string = "canvas#game") {
         let c = document.querySelector(qSel);
@@ -46,7 +55,6 @@ export default class Canvas implements Drawable {
             Canvas.canvas.addEventListener("contextmenu", (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                alert("fuck");
                 return false;
             })
             this.updateCanvasSize();
@@ -137,6 +145,8 @@ export default class Canvas implements Drawable {
 
         this.addObjectsToRenderQueue();
 
+        // console.log(Canvas.MINIMAL_REDRAW_TIME);
+
         // this.loadStuff();
         this.startGame();
     }
@@ -210,6 +220,14 @@ export default class Canvas implements Drawable {
     }
 
     private draw(ts: number) {
+        // let diff = ts - this.lastFrame;
+        if (ts - this.lastFrame < Canvas.minimalRedrawTime) {
+            //FRAMESKIP, call was too early
+            requestAnimationFrame(this.draw.bind(this));
+            return;
+        }
+        this.lastFrame = ts;
+        // if (diff > )
         ObjectRegistry.renderToContext(this.ctx, ts);
         requestAnimationFrame(this.draw.bind(this));
     }
