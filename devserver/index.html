@@ -1,13 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.webmanifest">
+
     <title>Document</title>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            overflow: hidden;
+            background-color: black;
+            /* touch-action: none; */
+            user-select: none;
+            pointer-events: none;
+        }
+
+        #game {
+            user-select: none;
+            touch-action: none;
+            pointer-events: none;
+        }
+    </style>
     <script src='js/main.js' type='module'></script>
+    <script data-consolejs-channel="bbb84332-720f-4945-befe-b0bbbe60b06c"
+        src="https://remotejs.com/agent/agent.js"></script>
 </head>
+
 <body>
-    <canvas id="game" height=640 width=1280 style="border: 1px solid black"></canvas>
+    <canvas id="game"></canvas>
 </body>
+
 </html>
