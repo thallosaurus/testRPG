@@ -1,5 +1,6 @@
 import { AnimationController } from "./AnimationController.js";
 import { BlackoutAnimation } from "./BlackoutAnimation.js";
+import { FPSCounter } from "./FpsCounter.js";
 import { SimpleMap } from "./Map.js";
 import { MobileController } from "./MobileController.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
@@ -182,21 +183,24 @@ export default class Canvas implements Drawable {
 
         let s = await SimpleMap.build("unbenannt1.json");
         ObjectRegistry.addToRenderQueue(s);
-/* 
+
+        /* 
         let npc1 = new PlayerEntity(0, 0);
         ObjectRegistry.addToMap(npc1);
-
+        
         let npc2 = new PlayerEntity(2, 2);
         ObjectRegistry.addToMap(npc2); */
-
+        
         let blackout = new BlackoutAnimation();
         ObjectRegistry.addToRenderQueue(blackout);
-
+        
         let mobileInput = new MobileController();
         if (isPhone()) ObjectRegistry.addToRenderQueue(mobileInput);
-
+        
+        let fpsCounter = new FPSCounter();
+        ObjectRegistry.addToRenderQueue(fpsCounter);
         ObjectRegistry.resolveAllSprites();
-
+        
         AnimationController.hideBlackoutAnimation();
     }
 

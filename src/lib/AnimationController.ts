@@ -1,4 +1,5 @@
 import { BlackoutAnimation } from "./BlackoutAnimation.js";
+import Canvas from "./CanvasController.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
 import { PlayerDirection } from "./Sprite.js";
 
@@ -8,7 +9,6 @@ export class AnimationController {
     static mapMovePromise: Promise<void> | null = null;
 
     static get isMoving() {
-        console.log(this.mapMovePromise);
         return this.mapMovePromise !== null;
     }
 
@@ -145,7 +145,7 @@ export class AnimationController {
     static async wait(duration: number) {
         console.log(duration, duration/2);
         return new Promise((res, rej) => {
-            setTimeout(res, duration / 4);
+            setTimeout(res, duration / Canvas.deltaTime);
         });
     }
 
