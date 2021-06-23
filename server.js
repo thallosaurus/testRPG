@@ -26,24 +26,24 @@ const WEBMANIFEST = {
 app.use("/js", (req, res, next) => {
     console.log(`[DEVSERVER] Sending ${req.originalUrl}`);
     next();
-}, static("../js"));
+}, static("build_ts"));
 
 app.use("/assets", (req, res, next) => {
     console.log(`[DEVSERVER] Sending Sprite ${req.originalUrl}`);
     next();
-}, static("../assets"));
+}, static("assets"));
 
 app.use("/src", (req, res, next) => {
     console.log(`[DEVSERVER] Sending Source ${req.originalUrl}`);
     next();
-}, static("../src"));
+}, static("src"));
 
 app.get("/", (req, res) => {
-    res.sendFile("index.html", { root: __dirname });
+    res.sendFile("/devassets/index.html", { root: __dirname });
 });
 
 app.get("/mapper", (req, res) => {
-    res.sendFile("mapper.html", { root: __dirname });
+    res.sendFile("/devassets/mapper.html", { root: __dirname });
 });
 
 app.get("/manifest.webmanifest", (req, res) => {

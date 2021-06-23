@@ -2,11 +2,11 @@
   "name": "tsclient",
   "version": "1.0.0",
   "description": "",
-  "main": "devserver/server.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf build && rm -rf node_modules",
-    "build": "npx tsc && npx browserify build/main.js -p esmify > out.js",
+    "build": "npx tsc && npx browserify build_ts/main.js -p esmify > build/module.js",
     "start": "nodemon -V devserver/server.js"
   },
   "author": "",
@@ -21,6 +21,7 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "socket.io": "^4.1.2"
+    "socket.io": "^4.1.2",
+    "socket.io-client": "^4.1.2"
   }
 }

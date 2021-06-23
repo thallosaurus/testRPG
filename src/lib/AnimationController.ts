@@ -109,8 +109,6 @@ export class AnimationController {
                     this.mapMovePromise = null;
                     res();
                 });
-
-                console.log(this.mapMovePromise);
                 return this.mapMovePromise;
             } else {
                 return null;
@@ -143,7 +141,6 @@ export class AnimationController {
     }
 
     static async wait(duration: number) {
-        console.log(duration, duration/2);
         return new Promise((res, rej) => {
             setTimeout(res, duration / Canvas.deltaTime);
         });

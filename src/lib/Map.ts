@@ -8,21 +8,6 @@ import { SimplePlayer } from "./Sprite.js";
 const TILEMAXWIDTH = 30;
 const TILEMAXHEIGHT = 30;
 
-// export interface MapDrawable {
-//     drawAt(ctx: CanvasRenderingContext2D, x: number, y: number, xd: number, yd: number): void;
-// }
-
-
-
-interface Level {
-    width: number;
-    height: number;
-    spritesheet: string;
-    mapped: Array<number>;
-    objects: Array<number>;
-    // collision: Array<boolean>;
-}
-
 export interface ResourceLoader {
     resolveSprites(): Promise<void>;
     unloadSprites(): void;
@@ -56,17 +41,6 @@ export interface DrawTomap {
 function getArrayIndexFromInt(x: number, y: number, w: number): number {
     return y * w + x;
 }
-
-/**
- * @deprecated
- */
-abstract class Builder {
-    /**
-     * Declares the default-state of the class
-     */
-    // build() : Promise<any> {};
-}
-
 export interface Animate {
     offsetX: number;
     offsetY: number;
@@ -146,11 +120,6 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
         return this.spriteHeight;
     }
 
-    /*
-    public getCanvasWidthTilesAvailable() {
-        return Math.floor(Canvas.canvas.width / 64);
-    }
-    */
     get tilesAvailableY() {
         return Canvas.height / this.tileHeight;
     }
@@ -228,13 +197,13 @@ export class SimpleMap implements ResourceLoader, Drawable, Animate {
         let player = new SimplePlayer(this.posX * -1, this.posY * -1);
         ObjectRegistry.addToMap(player);
 
-        let msg = await SocketConnection.getPlayersOnMap(this.mapName);
+        // let msg = await SocketConnection.getPlayersOnMap(this.mapName);
 
 /*         for (let m of msg) {
             console.log(m);
         } */
 
-        console.log(msg);
+        // console.log(msg);
     }
 
     onAnimation(x: number, y: number): void {
@@ -555,37 +524,6 @@ interface TiledJSONLevelLayer {
     properties: Array<TiledJSONLevelLayerProperties>;
 }
 
-/*
-                     "draworder": "topdown",
-                     "id": 8,
-                     "name": "teleporters",
-                     "objects": [
-                            {
-                                   "height": 0,
-                                   "id": 10,
-                                   "name": "",
-                                   "properties": [
-                                          {
-                                                 "name": "destination",
-                                                 "type": "string",
-                                                 "value": "level0.json"
-                                          }
-                                   ],
-                                   "rotation": 0,
-                                   "type": "",
-                                   "visible": true,
-                                   "width": 0,
-                                   "x": 81.3333333333333,
-                                   "y": 110.666666666667
-                            }
-                     ],
-                     "opacity": 1,
-                     "type": "objectgroup",
-                     "visible": true,
-                     "x": 0,
-                     "y": 0
-              },
-*/
 interface TiledJSONObjectLayer {
     draworder: string;
     id: number;
