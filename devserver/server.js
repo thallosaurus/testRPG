@@ -7,9 +7,9 @@ let io = require('socket.io')(http);
 const WEBMANIFEST = {
     "dir": "ltr",
     "lang": "en-US",
-    "name": "PRiSMFLUX",
-    "short_name": "PRiSMFLUX",
-    "description": "DJ PRiSMFLUX - a huge, frickin' nerd with a sense of humor",
+    "name": "schrottimon",
+    "short_name": "schrottimon",
+    "description": "schrottimon",
     "icons": [{
         "src": "icon_512.png",
         "type": "image/png",
@@ -26,7 +26,7 @@ const WEBMANIFEST = {
 app.use("/js", (req, res, next) => {
     console.log(`[DEVSERVER] Sending ${req.originalUrl}`);
     next();
-}, static("../build"));
+}, static("../js"));
 
 app.use("/assets", (req, res, next) => {
     console.log(`[DEVSERVER] Sending Sprite ${req.originalUrl}`);
@@ -44,6 +44,10 @@ app.get("/", (req, res) => {
 
 app.get("/mapper", (req, res) => {
     res.sendFile("mapper.html", { root: __dirname });
+});
+
+app.get("/icon_512.png", (req, res) => {
+    res.sendFile("icon_512.png", { rootdir: __dirname + "../" });
 });
 
 app.get("/manifest.webmanifest", (req, res) => {

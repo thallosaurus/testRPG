@@ -5,7 +5,7 @@
   "main": "devserver/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rm -rf build",
+    "clean": "rm -rf js && rm -rf node_modules",
     "build": "npx tsc",
     "start": "nodemon -V devserver/server.js"
   },
