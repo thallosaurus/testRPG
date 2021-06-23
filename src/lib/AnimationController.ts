@@ -1,136 +1,151 @@
 import { BlackoutAnimation } from "./BlackoutAnimation.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
+import { PlayerDirection } from "./Sprite.js";
 
 const FRAMES = 60;
 
 export class AnimationController {
-    static mapMovePromise: Promise<unknown> | null = null;
+    static mapMovePromise: Promise<void> | null = null;
 
     static get isMoving() {
+        console.log(this.mapMovePromise);
         return this.mapMovePromise !== null;
     }
 
+    static walkingDirAlternate = false;
+
+    static dir: PlayerDirection | null = null;
+
+    /**
+     * 
+     * @returns 
+     */
     static mapMoveUp() {
-        // ObjectRegistry.world.offsetY = 1;
-
-        if (AnimationController.mapMovePromise === null) {
-            return AnimationController.mapMovePromise = new Promise<void>(async (res) => {
-                let i = 0;
-
-                while (i !== FRAMES) {
-                    // ObjectRegistry.world.offsetY = (i * -1);
-                    ObjectRegistry.world.setOffset(0, (i / FRAMES));
-                    ObjectRegistry.player.setOffset(0, (i / FRAMES) * -1);
-                    // ObjectRegistry.world.offsetX = 100 / i;
-                    if (i % (FRAMES / 4) === 0) ObjectRegistry.player.progressWalking();
-                    await AnimationController.wait(5);
-                    i++;
-                }
-                // ObjectRegistry.world.offsetY = 0;
-                ObjectRegistry.world.setOffset(0, 0);
-                ObjectRegistry.player.setOffset(0, 0);
-                ObjectRegistry.world.posY++;
-                ObjectRegistry.player.y_--;
-                AnimationController.mapMovePromise = null;
-                res();
-            });
-        } else {
-            return null;
-        }
+        this.dir = PlayerDirection.UP;
+        return this.move();
     }
 
+    /**
+     * 
+     * @returns 
+     */
     static mapMoveDown() {
         // ObjectRegistry.world.offsetY = 1;
-
-        if (AnimationController.mapMovePromise === null) {
-            // ObjectRegistry.player.lookTo(PlayerDirection.DOWN);
-            return AnimationController.mapMovePromise = new Promise<void>(async (res, rej) => {
-                let i = 0;
-
-                while (i !== FRAMES) {
-                    // ObjectRegistry.world.offsetY = (i * -1);
-                    ObjectRegistry.world.setOffset(0, (i / FRAMES) * -1);
-                    ObjectRegistry.player.setOffset(0, (i / FRAMES));
-                    if (i % (FRAMES / 4) === 0) ObjectRegistry.player.progressWalking();
-                    // if (i % 12.5 == )
-                    // ObjectRegistry.world.offsetX = 100 / i;
-                    await AnimationController.wait(2);
-                    i++;
-                }
-                // ObjectRegistry.world.offsetY = 0;
-                ObjectRegistry.world.setOffset(0, 0);
-                ObjectRegistry.player.setOffset(0, 0);
-                ObjectRegistry.world.posY--;
-                ObjectRegistry.player.y_++;
-                AnimationController.mapMovePromise = null;
-                res();
-            });
-        } else {
-            return null;
-        }
+        this.dir = PlayerDirection.DOWN;
+        return this.move();
     }
 
+    /**
+     * 
+     * @returns 
+     */
     static mapMoveLeft() {
         // ObjectRegistry.world.offsetY = 1;
 
-        if (AnimationController.mapMovePromise === null) {
-            // ObjectRegistry.player.lookTo(PlayerDirection.LEFT);
-            return AnimationController.mapMovePromise = new Promise<void>(async (res, rej) => {
-                let i = 0;
-
-                while (i !== FRAMES) {
-                    // ObjectRegistry.world.offsetY = (i * -1);
-                    ObjectRegistry.world.setOffset((i / FRAMES), 0);
-                    ObjectRegistry.player.setOffset((i / FRAMES) * -1, 0);
-                    if (i % (FRAMES / 4) === 0) ObjectRegistry.player.progressWalking();
-                    // ObjectRegistry.world.offsetX = 100 / i;
-                    await AnimationController.wait(2);
-                    i++;
-                }
-                // ObjectRegistry.world.offsetY = 0;
-                ObjectRegistry.world.setOffset(0, 0);
-                ObjectRegistry.player.setOffset(0, 0);
-                ObjectRegistry.world.posX++;
-                ObjectRegistry.player.x_--;
-                AnimationController.mapMovePromise = null;
-                res();
-            });
-        }
+        this.dir = PlayerDirection.LEFT;
+        return this.move();
     }
 
     static mapMoveRight() {
         // ObjectRegistry.world.offsetY = 1;
-
-        if (AnimationController.mapMovePromise === null) {
-            // ObjectRegistry.player.lookTo(PlayerDirection.RIGHT);
-            return AnimationController.mapMovePromise = new Promise<void>(async (res, rej) => {
-                let i = 0;
-
-                while (i !== FRAMES) {
-                    // ObjectRegistry.world.offsetY = (i * -1);
-                    ObjectRegistry.world.setOffset((i / FRAMES) * -1, 0);
-                    ObjectRegistry.player.setOffset((i / FRAMES), 0);
-                    if (i % (FRAMES / 4) === 0) ObjectRegistry.player.progressWalking();
-                    // ObjectRegistry.world.offsetX = 100 / i;
-                    await AnimationController.wait(2);
-                    i++;
-                }
-                // ObjectRegistry.world.offsetY = 0;
-                ObjectRegistry.world.setOffset(0, 0);
-                ObjectRegistry.player.setOffset(0, 0);
-                ObjectRegistry.world.posX--;
-                ObjectRegistry.player.x_++;
-                AnimationController.mapMovePromise = null;
-                res();
-            });
-        }
+        this.dir = PlayerDirection.RIGHT;
+        return this.move();
     }
 
+    static move() {
+            if (!this.isMoving) {
+                this.mapMovePromise = new Promise<void>(async (res, rej) => {
+                    let i = 0;
 
+                    while (i !== FRAMES) {
+                        switch (this.dir) {
+                            case PlayerDirection.UP:
+                                ObjectRegistry.world.setOffset(0, (i / FRAMES));
+                                ObjectRegistry.player.setOffset(0, (i / FRAMES) * -1);
+                                break;
+
+                            case PlayerDirection.DOWN:
+                                ObjectRegistry.world.setOffset(0, (i / FRAMES) * -1);
+                                ObjectRegistry.player.setOffset(0, (i / FRAMES));
+                                break;
+
+                            case PlayerDirection.LEFT:
+                                ObjectRegistry.world.setOffset((i / FRAMES), 0);
+                                ObjectRegistry.player.setOffset((i / FRAMES) * -1, 0);
+                                break;
+
+                            case PlayerDirection.RIGHT:
+                                ObjectRegistry.world.setOffset((i / FRAMES) * -1, 0);
+                                ObjectRegistry.player.setOffset((i / FRAMES), 0);
+                                break;
+                        }
+
+                        if (i % (FRAMES / 4) === 0) ObjectRegistry.player.progressWalking();
+
+                        await AnimationController.wait(2);
+                        i++;
+                    }
+
+                    this.resetOffsets();
+
+                    switch (this.dir) {
+                        case PlayerDirection.UP:
+                            this.finalizeMoveUp();
+                            break;
+
+                        case PlayerDirection.DOWN:
+                            this.finalizeMoveDown();
+                            break;
+
+                        case PlayerDirection.LEFT:
+                            this.finalizeMoveLeft();
+                            break;
+
+                        case PlayerDirection.RIGHT:
+                            this.finalizeMoveRight();
+                            break;
+                    }
+
+                    this.mapMovePromise = null;
+                    res();
+                });
+
+                console.log(this.mapMovePromise);
+                return this.mapMovePromise;
+            } else {
+                return null;
+            }
+    }
+
+    static resetOffsets() {
+        ObjectRegistry.world.setOffset(0, 0);
+        ObjectRegistry.player.setOffset(0, 0);
+    }
+
+    static finalizeMoveRight() {
+        ObjectRegistry.world.posX--;
+        ObjectRegistry.player.x_++;
+    }
+
+    static finalizeMoveLeft() {
+        ObjectRegistry.world.posX++;
+        ObjectRegistry.player.x_--;
+    }
+
+    static finalizeMoveDown() {
+        ObjectRegistry.world.posY--;
+        ObjectRegistry.player.y_++;
+    }
+
+    static finalizeMoveUp() {
+        ObjectRegistry.world.posY++;
+        ObjectRegistry.player.y_--;
+    }
 
     static async wait(duration: number) {
+        console.log(duration, duration/2);
         return new Promise((res, rej) => {
-            setTimeout(res, duration / 2);
+            setTimeout(res, duration / 4);
         });
     }
 

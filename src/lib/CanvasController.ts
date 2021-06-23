@@ -23,6 +23,11 @@ export default class Canvas implements Drawable {
     public isMoving = false;
     public direction = -1;
 
+    static dTime = 0;
+    static get deltaTime() {
+        return this.dTime;
+    }
+
     static get targetFPS() {
         return 30;
     }
@@ -221,6 +226,7 @@ export default class Canvas implements Drawable {
 
     private draw(ts: number) {
         // let diff = ts - this.lastFrame;
+        Canvas.dTime = ts - this.lastFrame;
         if (ts - this.lastFrame < Canvas.minimalRedrawTime) {
             //FRAMESKIP, call was too early
             requestAnimationFrame(this.draw.bind(this));

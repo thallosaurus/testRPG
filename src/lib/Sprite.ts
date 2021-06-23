@@ -63,6 +63,11 @@ export class PlayerEntity extends SocketConnection implements MapObject {
         // console.log(this.walkingProgress);
         this.walkingProgress = p % 4;
     }
+
+    progressWalkingBackwards() {
+        let p = this.walkingProgress + 1;
+        this.walkingProgress = p % 4;
+    }
     
     standStill() {
         this.walkingProgress = 0;
@@ -163,8 +168,8 @@ export class PlayerEntity extends SocketConnection implements MapObject {
 
     public async moveUp() {
         return new Promise<void>(async (res, rej) => {
-            if (this.movementBlocked) return;
-            !AnimationController.isMoving && this.lookTo(PlayerDirection.UP);
+            if (this.movementBlocked || AnimationController.isMoving) return;
+            this.lookTo(PlayerDirection.UP);
             let o = ObjectRegistry.getXYAllLayers(this.x, this.y - 1);
             this.check(o) &&
                 await AnimationController.mapMoveUp();
@@ -174,8 +179,8 @@ export class PlayerEntity extends SocketConnection implements MapObject {
     }
 
     public async moveDown() {
-        if (this.movementBlocked) return;
-        !AnimationController.isMoving && this.lookTo(PlayerDirection.DOWN);
+        if (this.movementBlocked || AnimationController.isMoving) return;
+        this.lookTo(PlayerDirection.DOWN);
         let o = ObjectRegistry.getXYAllLayers(this.x, this.y + 1);
         // console.log(o);
         this.check(o) &&
@@ -184,8 +189,8 @@ export class PlayerEntity extends SocketConnection implements MapObject {
     }
 
     public async moveLeft() {
-        if (this.movementBlocked) return;
-        !AnimationController.isMoving && this.lookTo(PlayerDirection.LEFT);
+        if (this.movementBlocked || AnimationController.isMoving) return;
+        this.lookTo(PlayerDirection.LEFT);
         let o = ObjectRegistry.getXYAllLayers(this.x - 1, this.y);
         // console.log(o);
         this.check(o) &&
@@ -194,8 +199,8 @@ export class PlayerEntity extends SocketConnection implements MapObject {
     }
 
     public async moveRight() {
-        if (this.movementBlocked) return;
-        !AnimationController.isMoving && this.lookTo(PlayerDirection.RIGHT);
+        if (this.movementBlocked || AnimationController.isMoving) return;
+        this.lookTo(PlayerDirection.RIGHT);
         let o = ObjectRegistry.getXYAllLayers(this.x + 1, this.y);
         // console.log(o);
         this.check(o) &&
