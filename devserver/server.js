@@ -11,7 +11,7 @@ const WEBMANIFEST = {
     "short_name": "schrottimon",
     "description": "schrottimon",
     "icons": [{
-        "src": "icon_512.png",
+        "src": "assets/icon_512.png",
         "type": "image/png",
         "sizes": "512x512"
     }],
@@ -44,10 +44,6 @@ app.get("/", (req, res) => {
 
 app.get("/mapper", (req, res) => {
     res.sendFile("mapper.html", { root: __dirname });
-});
-
-app.get("/icon_512.png", (req, res) => {
-    res.sendFile("icon_512.png", { rootdir: __dirname + "../" });
 });
 
 app.get("/manifest.webmanifest", (req, res) => {
