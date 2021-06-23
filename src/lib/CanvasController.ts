@@ -185,7 +185,7 @@ export default class Canvas implements Drawable {
 
         ObjectRegistry.addToRenderQueue(this);
 
-        let s = await SimpleMap.build("unbenannt1.json");
+        let s = await SimpleMap.build("room0.json");
         ObjectRegistry.addToRenderQueue(s);
 
         /* 
