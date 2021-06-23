@@ -5,7 +5,7 @@ import { SimpleMap } from "./Map.js";
 import { MobileController } from "./MobileController.js";
 import { ObjectRegistry } from "./ObjectRegistry.js";
 import { SocketConnection } from "./SocketConnection.js";
-import { PlayerDirection, PlayerEntity, SimplePlayer } from "./Sprite.js";
+import { PlayerDirection } from "./Sprite.js";
 
 
 let mouseStartX: number | null = null;
@@ -80,24 +80,28 @@ export default class Canvas implements Drawable {
                     // this.world.startRunning();
                     break;
 
+                case "a":
                 case "ArrowLeft":
                     this.isMoving = true;
                     this.direction = PlayerDirection.LEFT;
                     ObjectRegistry.player.moveLeft();
                     break;
 
+                case "d":
                 case "ArrowRight":
                     this.isMoving = true;
                     this.direction = PlayerDirection.RIGHT;
                     ObjectRegistry.player.moveRight();
                     break;
 
+                case "w":
                 case "ArrowUp":
                     this.isMoving = true;
                     this.direction = PlayerDirection.UP;
                     ObjectRegistry.player.moveUp();
                     break;
 
+                case "s":
                 case "ArrowDown":
                     this.isMoving = true;
                     this.direction = PlayerDirection.DOWN;
