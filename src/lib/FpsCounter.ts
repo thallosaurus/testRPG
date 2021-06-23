@@ -15,7 +15,7 @@ export class FPSCounter implements Drawable {
         // refreshLoop();
 
         ctx.fillStyle = "red";
-        ctx.fillText("FPS: " + this.fps, 0, 0);
+        ctx.fillText("FPS: " + this.fps, 100, 0);
 
     }
 
