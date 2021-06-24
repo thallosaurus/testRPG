@@ -1,4 +1,4 @@
-import Canvas from './lib/CanvasController.js';
+import Canvas from './lib/Controllers/CanvasController.js';
 
 // let canvas;
 

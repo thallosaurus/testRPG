@@ -1,11 +1,16 @@
-import { AnimationController } from "./AnimationController.js";
-import { BlackoutAnimation } from "./BlackoutAnimation.js";
-import { FPSCounter } from "./FpsCounter.js";
-import { SimpleMap } from "./Map.js";
-import { MobileController } from "./MobileController.js";
-import { ObjectRegistry } from "./ObjectRegistry.js";
-import { SocketConnection } from "./SocketConnection.js";
-import { PlayerDirection } from "./Sprite.js";
+// import { AnimationController } from "./AnimationController.js";
+// import { BlackoutAnimation } from "./BlackoutAnimation.js";
+// import { FPSCounter } from "./FpsCounter.js";
+// import { SimpleMap } from "./Map.js";
+// import { MobileController } from "./MobileController.js";
+// import { ObjectRegistry } from "./ObjectRegistry.js";
+// import { SocketConnection } from "./SocketConnection.js";
+// import { PlayerDirection } from "./Sprite.js";
+
+import { Drawable } from "../Interfaces/Drawable.js";
+import { GameMap } from "../Map/GameMap.js";
+import { ObjectRegistry } from "../ObjectRegistry.js";
+import { WorldController } from "./WorldController.js";
 
 
 let mouseStartX: number | null = null;
@@ -15,6 +20,8 @@ let mouseStartY: number | null = null;
 export default class Canvas implements Drawable {
     
     static canvas: HTMLCanvasElement;
+    static readonly DEBUG: boolean = true;
+
     private readonly ctx: CanvasRenderingContext2D;
     // private map!: MapData;
     // private world!: World;
@@ -55,7 +62,7 @@ export default class Canvas implements Drawable {
             window.onorientationchange = () => {
                 // alert("ok");
                 this.updateCanvasSize();
-                ObjectRegistry.mobileController?.updateTouchEvents();
+                // ObjectRegistry.mobileController?.updateTouchEvents();
             };
 
             Canvas.canvas.addEventListener("contextmenu", (event) => {
@@ -70,7 +77,8 @@ export default class Canvas implements Drawable {
             throw qSel + " is not a valid Canvas Query String";
         }
 
-        window.addEventListener("keydown", (e) => {
+        window.addEventListener("keydown", ObjectRegistry.onInputEvent.bind(ObjectRegistry));
+/*         window.addEventListener("keydown", (e) => {
             switch (e.key) {
                 case "o":
                     let g = prompt("Level?");
@@ -112,7 +120,7 @@ export default class Canvas implements Drawable {
                     // this.world.tp();
                     break;
             }
-        });
+        }); */
 
         window.addEventListener("keyup", (e) => {
             switch (e.key) {
@@ -129,27 +137,29 @@ export default class Canvas implements Drawable {
             }
         });
 
-        ObjectRegistry.DEBUG && window.addEventListener("mousedown", (event) => {
+         Canvas.DEBUG && window.addEventListener("mousedown", (event) => {
             mouseStartX = event.clientX;
             mouseStartY = event.clientY;
         });
 
-        ObjectRegistry.DEBUG && window.addEventListener("mousemove", (event) => {
+        Canvas.DEBUG && window.addEventListener("mousemove", (event) => {
             if (mouseStartX !== null && mouseStartY !== null) {
                 let diffX = event.clientX - mouseStartX;
                 let diffY = event.clientY - mouseStartY;
-                ObjectRegistry.world.setOffset(diffX / 10, diffY / 10);
-                console.log(diffX, diffY);
+                // ObjectRegistry.world.setOffset(diffX / 10, diffY / 10);
+                ObjectRegistry.setVisualOffset(diffX, diffY);
+
+                // console.log(diffX, diffY);
             }
 
         });
 
-        ObjectRegistry.DEBUG && window.addEventListener("mouseup", (event) => {
+        Canvas.DEBUG && window.addEventListener("mouseup", (event) => {
             mouseStartX = null;
             mouseStartY = null;
         });
 
-        SocketConnection.setupSockets();
+        /*SocketConnection.setupSockets(); */
 
         // this.loadStuff("level2.json");
 
@@ -185,8 +195,8 @@ export default class Canvas implements Drawable {
 
         ObjectRegistry.addToRenderQueue(this);
 
-        let s = await SimpleMap.build("room0.json");
-        ObjectRegistry.addToRenderQueue(s);
+        // let s = await SimpleMap.build("room0.json");
+        // ObjectRegistry.addToRenderQueue(s);
 
         /* 
         let npc1 = new PlayerEntity(0, 0);
@@ -195,17 +205,23 @@ export default class Canvas implements Drawable {
         let npc2 = new PlayerEntity(2, 2);
         ObjectRegistry.addToMap(npc2); */
         
-        let blackout = new BlackoutAnimation();
-        ObjectRegistry.addToRenderQueue(blackout);
+        // let blackout = new BlackoutAnimation();
+        // ObjectRegistry.addToRenderQueue(blackout);
         
-        let mobileInput = new MobileController();
-        if (isPhone()) ObjectRegistry.addToRenderQueue(mobileInput);
+        // let mobileInput = new MobileController();
+        // if (isPhone()) ObjectRegistry.addToRenderQueue(mobileInput);
         
-        let fpsCounter = new FPSCounter();
-        ObjectRegistry.addToRenderQueue(fpsCounter);
+        // let fpsCounter = new FPSCounter();
+        // ObjectRegistry.addToRenderQueue(fpsCounter);
+        let worldcontroller = new WorldController();
+        let gm = await GameMap.getLevel("unbenannt1.json");
+        worldcontroller.loadMap(gm);
+
+        ObjectRegistry.addToRenderQueue(worldcontroller);
+
         ObjectRegistry.resolveAllSprites();
         
-        AnimationController.hideBlackoutAnimation();
+        // AnimationController.hideBlackoutAnimation();
     }
 
     /**
@@ -245,13 +261,6 @@ export default class Canvas implements Drawable {
         ObjectRegistry.renderToContext(this.ctx, ts);
         requestAnimationFrame(this.draw.bind(this));
     }
-}
-
-export interface Drawable {
-    redraw(ctx: CanvasRenderingContext2D, timestamp: number): void;
-    redrawDbg?(ctx: CanvasRenderingContext2D, timestamp: number): void;
-    /*     textureUrl: string;
-        texture: HTMLImageElement; */
 }
 
 function isValidCanvasElement(canvas: Element | null): canvas is HTMLCanvasElement {
