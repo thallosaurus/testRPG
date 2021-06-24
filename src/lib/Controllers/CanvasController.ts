@@ -33,6 +33,7 @@ export default class Canvas implements Drawable {
     public direction = -1;
 
     static dTime = 0;
+    static timestamp: number;
     static get deltaTime() {
         return this.dTime;
     }
@@ -255,6 +256,7 @@ export default class Canvas implements Drawable {
 
     private draw(ts: number) {
         // let diff = ts - this.lastFrame;
+        Canvas.timestamp = ts;
         Canvas.dTime = ts - this.lastFrame;
         if (ts - this.lastFrame < Canvas.minimalRedrawTime) {
             //FRAMESKIP, call was too early

@@ -7,7 +7,7 @@ import { SimpleTile } from "./SimpleTile.js";
 import { TiledJSONLevelLayer, TiledJSONMap, TiledJSONObjectLayer } from "./TiledJSONMap.js";
 import { TileLayer } from "./TileLayer.js";
 
-export class GameMap implements Mappable, TiledJSONMap, ImageLoader, SocketSubscriber {
+export class GameMap implements Mappable, TiledJSONMap, ImageLoader {
     // layer_: (SimpleLayer | ObjectLayer)[] = [];
 
     width: number;
@@ -26,8 +26,6 @@ export class GameMap implements Mappable, TiledJSONMap, ImageLoader, SocketSubsc
     
     resourceUrl: string | null = null;
     static resource: HTMLImageElement | null = null;
-
-    messageId!: string;
 
     constructor(data: TiledJSONMap) {
         this.width = data.width;
@@ -51,14 +49,6 @@ export class GameMap implements Mappable, TiledJSONMap, ImageLoader, SocketSubsc
             return new TileLayer(e as any);
             // }
         });
-    }
-
-    send(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    onmessage(ev: MessageEvent<any>): void {
-        throw new Error("Method not implemented.");
     }
 
     unloadResource(): void {
@@ -119,6 +109,7 @@ export class GameMap implements Mappable, TiledJSONMap, ImageLoader, SocketSubsc
 
         for (let l of this.loadedLayers) {
             if (l) b.push(l?.getMapDataXY(x, y));
+            // if (l)
         }
 
         return b;

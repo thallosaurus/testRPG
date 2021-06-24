@@ -30,8 +30,8 @@ export class ObjectRegistry {
 
     static setVisualOffset(x: number, y: number) {
         this.renderQueue.filter(objectIsVisualOffset).forEach(e => {
-            (e as unknown as VisualOffset).setVisualOffsetX(x);
-            (e as unknown as VisualOffset).setVisualOffsetY(y);
+            (e as unknown as VisualOffset).setVisualOffsetX(x, 0);
+            (e as unknown as VisualOffset).setVisualOffsetY(y, 0);
         });
     }
 

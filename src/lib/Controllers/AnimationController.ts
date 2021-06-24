@@ -5,29 +5,33 @@ import Canvas from "./CanvasController.js";
 export class AnimationController implements Drawable {
     static animationQueue: Array<AnimationObject> = [];
 
+    static get timestamp() : number{
+        return Canvas.timestamp;
+    }
+
     redraw(ctx: CanvasRenderingContext2D, timestamp: number): void {
         for (let a of AnimationController.animationQueue) {
             if (a.changes.length !== 0) {
                 let frame = a.changes.shift();
                 switch (a.direction) {
                     case "x":
-                        a.element.setVisualOffsetX(frame! * (a.pos ? 1 : -1))
+                        a.element.setVisualOffsetX(frame! * (a.pos ? 1 : -1), Canvas.timestamp - a.timestamp);
                         break;
 
                     case "y":
-                        a.element.setVisualOffsetY(frame! * (a.pos ? 1 : -1));
+                        a.element.setVisualOffsetY(frame! * (a.pos ? 1 : -1), Canvas.timestamp - a.timestamp);
                         break;
                 }
             } else {
                 switch (a.direction) {
                     case "x":
-                        a.element.finalizeX(a.pos);
-                        a.element.setVisualOffsetX(0);
+                        a.element.finalizeX(a.pos, a.iterations);
+                        a.element.setVisualOffsetX(0, 0);
                         break;
 
                     case "y":
-                        a.element.finalizeY(a.pos);
-                        a.element.setVisualOffsetY(0);
+                        a.element.finalizeY(a.pos, a.iterations);
+                        a.element.setVisualOffsetY(0, 0);
                         break;
                 }
 
@@ -38,23 +42,25 @@ export class AnimationController implements Drawable {
         }
     }
 
-    static scheduleMapMoveAnimation(vis: VisualOffset, direction: "x" | "y", pos: boolean) {
+    static scheduleMapMoveAnimation(vis: VisualOffset, direction: "x" | "y", pos: boolean, distance: number = 1) {
         //generate frames
-        let ch = this.generateFrameDiffsMapMovement(0, Math.floor(Canvas.targetFPS));
+        let ch = this.generateFrameDiffsMapMovement(0, Math.floor(Canvas.targetFPS), distance);
 
         vis.hasActiveEvent = true;
         this.animationQueue.push({
             element: vis,
             changes: ch,
             direction: direction,
-            pos: pos
+            pos: pos,
+            timestamp: this.timestamp,
+            iterations: distance
         });
     }
 
-    static generateFrameDiffsMapMovement(min: number, max: number) {
+    static generateFrameDiffsMapMovement(min: number, max: number, iterations = 1) {
         let b: number[] = [];
 
-        for (let i = min; i < max; i++) {
+        for (let i = min; i < max * iterations; i++) {
             b.push((1 / max * i) * 64);
         }
 
@@ -67,4 +73,6 @@ interface AnimationObject {
     changes: number[];
     direction: "x" | "y";
     pos: boolean;
+    timestamp: number;
+    iterations: number;
 }

@@ -7,6 +7,11 @@ export class SimpleTile implements MapDrawable {
     constructor(t: number) {
         this.id = t - 1;
     }
+
+    get spriteId() {
+        return this.id;
+    }
+    
     drawAt(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void {
         // throw new Error("Method not implemented.");
         if (this.id != 0) {

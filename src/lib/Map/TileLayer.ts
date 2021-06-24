@@ -44,6 +44,7 @@ export class TileLayer implements SubMappable, TiledJSONLevelLayer {
         let i = MapUtils.getI(x, y, this.width);
 
         let tile = this.loadedTiles[i];
+        if (tile.spriteId === -1) return null;
         if (tile === undefined) return null;
         return tile;
     }
