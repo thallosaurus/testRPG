@@ -10,6 +10,7 @@
 import { Drawable } from "../Interfaces/Drawable.js";
 import { GameMap } from "../Map/GameMap.js";
 import { ObjectRegistry } from "../ObjectRegistry.js";
+import { AnimationController } from "./AnimationController.js";
 import { WorldController } from "./WorldController.js";
 
 
@@ -213,6 +214,10 @@ export default class Canvas implements Drawable {
         
         // let fpsCounter = new FPSCounter();
         // ObjectRegistry.addToRenderQueue(fpsCounter);
+
+        let animationController = new AnimationController();
+        ObjectRegistry.addToRenderQueue(animationController);
+    
         let worldcontroller = new WorldController();
         let gm = await GameMap.getLevel("unbenannt1.json");
         worldcontroller.loadMap(gm);

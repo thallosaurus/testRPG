@@ -3,7 +3,7 @@ import { MapUtils } from "../Utilities.js";
 import { GameMap } from "./GameMap.js";
 
 export class SimpleTile implements MapDrawable {
-    id: number;
+    private id: number;
     constructor(t: number) {
         this.id = t - 1;
     }

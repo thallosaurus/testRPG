@@ -4,6 +4,7 @@ import Canvas from "./Controllers/CanvasController.js";
 import { Drawable } from "./Interfaces/Drawable.js";
 import { InputHandler } from "./Interfaces/InputHandler.js";
 import { ResourceLoader } from "./Interfaces/ResourceLoader.js";
+import { SocketSubscriber } from "./Interfaces/SocketSubscriber.js";
 import { VisualOffset } from "./Interfaces/VisualOffset.js";
 
 export class ObjectRegistry {
@@ -35,10 +36,18 @@ export class ObjectRegistry {
     }
 
     static onInputEvent(e: KeyboardEvent) {
-        // console.log(e);
-        // console.log(this.renderQueue);
         this.renderQueue.filter(objectIsInputHandler).forEach(f => {
             (f as unknown as InputHandler).onKeyboardEvent(e);
+        });
+    }
+
+    static passToSocketSubscriber(event: MessageEvent): void {
+        this.renderQueue
+        .filter(objectIsSocketSubscriber).
+        filter(e => {
+            return true; /* (e as unknown as SocketSubscriber).messageId */
+        }).forEach(s => {
+            (s as unknown as SocketSubscriber).onmessage(event);
         });
     }
 }
@@ -57,4 +66,8 @@ function objectIsVisualOffset(obj: any): obj is VisualOffset {
 
 function objectIsInputHandler(obj: any): obj is InputHandler {
     return 'onKeyboardEvent' in obj;
+}
+
+function objectIsSocketSubscriber(obj: any): obj is SocketSubscriber {
+    return 'onmessage' in obj;
 }

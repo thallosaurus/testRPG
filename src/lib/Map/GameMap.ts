@@ -1,11 +1,13 @@
 import { Mappable, SubMappable } from "../Controllers/WorldController.js";
+import { MapDrawable } from "../Interfaces/MapDrawable.js";
 import { ImageLoader } from "../Interfaces/ResourceLoader.js";
+import { SocketSubscriber } from "../Interfaces/SocketSubscriber.js";
 import { ObjectLayer } from "./ObjectLayer.js";
 import { SimpleTile } from "./SimpleTile.js";
 import { TiledJSONLevelLayer, TiledJSONMap, TiledJSONObjectLayer } from "./TiledJSONMap.js";
 import { TileLayer } from "./TileLayer.js";
 
-export class GameMap implements Mappable, TiledJSONMap, ImageLoader {
+export class GameMap implements Mappable, TiledJSONMap, ImageLoader, SocketSubscriber {
     // layer_: (SimpleLayer | ObjectLayer)[] = [];
 
     width: number;
@@ -19,11 +21,13 @@ export class GameMap implements Mappable, TiledJSONMap, ImageLoader {
     tilewidth: number;
     type: string;
     version: string;
-
+    
     loadedLayers: Array<SubMappable>;
-
+    
     resourceUrl: string | null = null;
     static resource: HTMLImageElement | null = null;
+
+    messageId!: string;
 
     constructor(data: TiledJSONMap) {
         this.width = data.width;
@@ -48,12 +52,24 @@ export class GameMap implements Mappable, TiledJSONMap, ImageLoader {
             // }
         });
     }
-    unloadResource(): void {
-        URL.revokeObjectURL(this.resourceUrl!);
+
+    send(): void {
+        throw new Error("Method not implemented.");
     }
 
-    public getArea(x_: number, y_: number, width: number, height: number): Array<Array<SimpleTile | null>> {
-        let buf = Array<Array<SimpleTile | null>>();
+    onmessage(ev: MessageEvent<any>): void {
+        throw new Error("Method not implemented.");
+    }
+
+    unloadResource(): void {
+        // this.resourceUrl = null;
+        GameMap.resource!.src = "";
+        URL.revokeObjectURL(this.resourceUrl!);
+        this.resourceUrl = null;
+    }
+
+    public getArea(x_: number, y_: number, width: number, height: number): Array<Array<MapDrawable | null>> {
+        let buf = Array<Array<MapDrawable | null>>();
         for (let y = y_; y < height + y_; y++) {
             for (let x = x_; x < width + x_; x++) {
                 let tile = this.getMapDataXY(x, y);
@@ -93,12 +109,12 @@ export class GameMap implements Mappable, TiledJSONMap, ImageLoader {
         })
     }
 
-    public getMapDataXY(x: number, y: number): (SimpleTile | null)[] {
+    public getMapDataXY(x: number, y: number): (MapDrawable | null)[] {
         // throw new Error("Method not implemented.");
         return this.returnAcrossLayers(x, y);
     }
 
-    private returnAcrossLayers(x: number, y: number): Array<SimpleTile | null> {
+    private returnAcrossLayers(x: number, y: number): Array<MapDrawable | null> {
         let b = [];
 
         for (let l of this.loadedLayers) {

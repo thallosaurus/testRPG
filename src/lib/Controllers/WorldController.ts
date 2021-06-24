@@ -6,9 +6,14 @@ import { VisualOffset } from "../Interfaces/VisualOffset.js";
 import { InputHandler } from "../Interfaces/InputHandler.js";
 import { ResourceLoader } from "../Interfaces/ResourceLoader.js";
 
+import { AnimationController } from "./AnimationController.js";
+import { MapDrawable } from "../Interfaces/MapDrawable.js";
+import { CharacterController } from "./CharacterController.js";
+
 export class WorldController implements Drawable, VisualOffset, InputHandler {
 
   private currentMap: GameMap | null = null;
+  private charCont: CharacterController;
 
   private spriteWidth: number = 64;
   private spriteHeight: number = 64;
@@ -16,8 +21,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   private visualXOffset: number = 0;
   private visualYOffset: number = 0;
 
-/*   private x!: number;
-  private y!: number; */
+  public hasActiveEvent: boolean = false;
 
   get tilesAvailableY() {
     return Canvas.height / this.tileHeight;
@@ -46,34 +50,49 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
     this.visualYOffset = y;
   }
   getVisualOffsetX(): number {
-    return this.visualXOffset;
+    return this.visualXOffset + (this.tileWidth / 2);
   }
   getVisualOffsetY(): number {
-    return this.visualYOffset;
+    return this.visualYOffset + (this.tileHeight / 2);
   }
 
   constructor() {
-    
+    this.charCont = new CharacterController();
+  }
+
+  finalizeX(pos: boolean): void {
+    this.x_ += pos ? -1 : 1;
+  }
+  finalizeY(pos: boolean): void {
+    this.y_ += pos ? -1 : 1;
   }
 
   onKeyboardEvent(e: KeyboardEvent): void {
     console.log(e);
+    if (this.hasActiveEvent) return;
+
     switch (e.key) {
       case "w":
-        this.y_--;
+        AnimationController.scheduleMapMoveAnimation(this, "y", true);
         break;
-      case "a":
-        this.x_--;
-        break;
-      case "s":
-        this.y_++;
-        break;
-      case "d":
-        this.x_++;
-        break;
-    }
 
-    console.log(this.x, this.y);
+      case "a":
+        AnimationController.scheduleMapMoveAnimation(this, "x", false);
+        break;
+
+      case "s":
+        AnimationController.scheduleMapMoveAnimation(this, "y", false);
+        break;
+      
+      case "d":
+        AnimationController.scheduleMapMoveAnimation(this, "x", true);
+        break;
+
+      case "u":
+        console.log("u");
+        this.currentMap?.unloadResource();
+        break;
+      }
   }
 
   private x_: number = 0;
@@ -94,32 +113,43 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
 
   redraw(ctx: CanvasRenderingContext2D, timestamp: number): void {
     if (isAMapLoaded(this.map)) {
-      // let data = this.map.getArea(0, 0, this.tilesAvailableX, this.tilesAvailableY);
-      for (let y = -1; y < this.tilesAvailableY + 1; y++) {
-        for (let x = -1; x < this.tilesAvailableX + 1; x++) {
+      for (let y = -2; y < this.tilesAvailableY + 1; y++) {
+        for (let x = -2; x < this.tilesAvailableX + 1; x++) {
           let data = this.map.getMapDataXY(x + this.x, y + this.y);
           for (let mapdata of data) {
-            mapdata?.drawAt(ctx, timestamp, x * this.tileWidth  + this.getVisualOffsetX(), y * this.tileHeight  + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
+            mapdata?.drawAt(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
           }
+
+          let char = this.charCont.getMapDataXY(x + this.x, y + this.y);
+          char?.drawAt(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
+          // console.log(char);
         }
       }
     }
-    // throw new Error("Method not implemented.");
   }
-
+  
   redrawDbg(ctx: CanvasRenderingContext2D, timestamp: number): void {
     if (isAMapLoaded(this.map)) {
-      for (let y = -1; y < this.tilesAvailableY + 1; y++) {
-        for (let x = -1; x < this.tilesAvailableX + 1; x++) {
+      for (let y = -2; y < this.tilesAvailableY + 1; y++) {
+        for (let x = -2; x < this.tilesAvailableX + 1; x++) {
           let data = this.map.getMapDataXY(x + this.x, y + this.y);
-
+          
           for (let mapdata of data) {
-            mapdata?.drawDbg(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
+            mapdata?.drawDbg?.(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
+
           }
+          let char = this.charCont.getMapDataXY(x + this.x, y + this.y);
+          char?.drawAt(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
         }
       }
     }
+
+    ctx.beginPath();
+    ctx.rect(Canvas.width / 2 - 10, Canvas.height / 2 - 10, 20, 20);
+    ctx.stroke();
   }
+
+  
 }
 
 function isAMapLoaded(map: any): map is Mappable {
@@ -127,10 +157,10 @@ function isAMapLoaded(map: any): map is Mappable {
 }
 
 export interface Mappable {
-  getMapDataXY(x: number, y: number): Array<SimpleTile | null>;
-  getArea(x: number, y: number, w: number, h: number): Array<Array<SimpleTile | null>>;
+  getMapDataXY(x: number, y: number): Array<MapDrawable | null>;
+  getArea(x: number, y: number, w: number, h: number): Array<Array<MapDrawable | null>>;
 }
 
 export interface SubMappable {
-  getMapDataXY(x: number, y: number): SimpleTile | null;
+  getMapDataXY(x: number, y: number): MapDrawable | null;
 }
