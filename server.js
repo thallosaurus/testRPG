@@ -2,7 +2,11 @@ const { static } = require("express");
 const express = require("express");
 const app = express();
 const http = require("http").Server(app);
-let io = require('socket.io')(http);
+const path = require("path");
+//let io = require('socket.io')(http);
+const MultiplayerServer = require(path.join(__dirname, "./build/lib/Server/ServerMain.js"));
+const server = new MultiplayerServer();
+//const MultiplayerServer = require(;
 
 const WEBMANIFEST = {
     "dir": "ltr",
@@ -51,16 +55,8 @@ app.get("/mapper", (req, res) => {
 
 app.get("/manifest.webmanifest", (req, res) => {
     res.send(WEBMANIFEST);
-})
-
-io.on('connection', (socket) => {
-    console.log("a user connected");
-
-    socket.on("disconnect", () => {
-        console.log("A user disconnected");
-    })
 });
 
-app.listen("8080", () => {
+/*app.listen("8080", () => {
     console.log("Dev Server running on :8080");
-});
+});*/

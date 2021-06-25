@@ -1,3 +1,4 @@
+import { MultiplayerClient } from "../../Client/SocketClient";
 import { AnimationController } from "../../Controllers/AnimationController";
 import { MapDrawable } from "../../Interfaces/MapDrawable";
 import { ImageLoader } from "../../Interfaces/ResourceLoader";
@@ -26,7 +27,7 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset {
     }
 
     public setAnimationProgress(ts: number) {
-        this.progress = Math.floor(ts / 250) % 4;
+        this.progress = Math.floor(ts / 125) % 4;
     }
 
     public lookAt(direction: PlayerDirection) {
@@ -34,8 +35,7 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset {
     }
 
     constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
+        //super("wss://localhost:")
     }
 
     hasActiveEvent: boolean = false;

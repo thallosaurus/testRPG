@@ -7,6 +7,7 @@
 // import { SocketConnection } from "./SocketConnection.js";
 // import { PlayerDirection } from "./Sprite.js";
 
+import { MultiplayerClient } from "../Client/SocketClient";
 import { Drawable } from "../Interfaces/Drawable";
 import { GameMap } from "../Map/GameMap";
 import { ObjectRegistry } from "../ObjectRegistry";
@@ -18,13 +19,13 @@ import { WorldController } from "./WorldController";
 let mouseStartX: number | null = null;
 let mouseStartY: number | null = null;
 
-
 export default class Canvas implements Drawable {
     
     static canvas: HTMLCanvasElement;
     static readonly DEBUG: boolean = false;
 
     private readonly ctx: CanvasRenderingContext2D;
+    //static readonly client: MultiplayerClient.Client = new MultiplayerClient.Client("wss://localhost:4000");
     // private map!: MapData;
     // private world!: World;
 
@@ -169,6 +170,8 @@ export default class Canvas implements Drawable {
 
         // this.loadStuff("level2.json");
 
+        //Canvas.client = 
+
         this.addObjectsToRenderQueue();
 
         // console.log(Canvas.MINIMAL_REDRAW_TIME);
@@ -222,8 +225,8 @@ export default class Canvas implements Drawable {
         ObjectRegistry.addToRenderQueue(animationController);
         
         let worldcontroller = new WorldController();
-        let gm = await GameMap.getLevel("unbenannt1.json");
-        worldcontroller.loadMap(gm);
+        //let gm = await GameMap.getLevel("room0.json");
+        //worldcontroller.loadMap(gm);
 
         ObjectRegistry.addToRenderQueue(worldcontroller);
         

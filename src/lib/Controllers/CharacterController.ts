@@ -1,12 +1,13 @@
+import { MultiplayerClient } from "../Client/SocketClient";
 import { MapDrawable } from "../Interfaces/MapDrawable";
 import { ImageLoader } from "../Interfaces/ResourceLoader";
-import { SocketSubscriber } from "../Interfaces/SocketSubscriber";
 import { Character, PlayerDirection } from "../Map/MapObjects/Character";
 import { Mappable, SubMappable, WorldController } from "./WorldController";
 
-export class CharacterController implements SubMappable, ImageLoader, SocketSubscriber {
+export class CharacterController implements SubMappable, ImageLoader {
     
     private ownPlayer: Character = new Character(0, 0);
+    private client: MultiplayerClient.Client = new MultiplayerClient.Client("ws://localhost:4000");
 
     getMapDataXY(x: number, y: number): MapDrawable | null {
         // throw new Error("Method not implemented.");
@@ -34,16 +35,8 @@ export class CharacterController implements SubMappable, ImageLoader, SocketSubs
     private characters: Array<Character> = [];
 
     constructor() {
-        this.characters.push(new Character(3, 3));
-    }
+        //this.characters.push(new Character(3, 3));
 
-    onmessage(ev: MessageEvent<any>): void {
-        // throw new Error("Method not implemented.");
-        console.log(ev);
-    }
-    messageId!: string;
-    send(): void {
-        throw new Error("Method not implemented.");
     }
 
     resolveResource(): Promise<void> {

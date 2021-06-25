@@ -9,9 +9,8 @@ import { AnimationController } from "./AnimationController";
 import { MapDrawable } from "../Interfaces/MapDrawable";
 import { CharacterController } from "./CharacterController";
 import { PlayerDirection } from "../Map/MapObjects/Character";
-import { SocketSubscriber } from "../Interfaces/SocketSubscriber";
 
-export class WorldController implements Drawable, VisualOffset, InputHandler, SocketSubscriber {
+export class WorldController implements Drawable, VisualOffset, InputHandler {
 
   private currentMap: GameMap | null = null;
   private charCont: CharacterController;
@@ -62,15 +61,8 @@ export class WorldController implements Drawable, VisualOffset, InputHandler, So
 
   constructor() {
     this.charCont = new CharacterController();
-  }
-  onmessage(ev: MessageEvent<any>): void {
-    // throw new Error("Method not implemented.");
-    this.charCont.onmessage(ev);
-  }
 
-  messageId!: string;
-  send(): void {
-    throw new Error("Method not implemented.");
+    
   }
 
   finalizeX(pos: boolean, distance: number): void {
