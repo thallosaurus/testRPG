@@ -225,8 +225,8 @@ export default class Canvas implements Drawable {
         ObjectRegistry.addToRenderQueue(animationController);
         
         let worldcontroller = new WorldController();
-        //let gm = await GameMap.getLevel("room0.json");
-        //worldcontroller.loadMap(gm);
+        let gm = await GameMap.getLevel("room0.json");
+        worldcontroller.loadMap(gm);
 
         ObjectRegistry.addToRenderQueue(worldcontroller);
         

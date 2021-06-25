@@ -1,3 +1,4 @@
+import { exception } from 'console';
 import { io, Socket } from 'socket.io-client';
 import { PlayerJoinEvent, PlayerX, PlayerY } from '../Interfaces/ServerEvents';
 
@@ -15,6 +16,9 @@ export namespace MultiplayerClient {
                 this.id = data.id;
             }).catch(e => {
                 console.error("Connection failed, " + e);
+                //this.io = null;
+                this.io?.close();
+                //throw new Error(e);
             });
         }
 

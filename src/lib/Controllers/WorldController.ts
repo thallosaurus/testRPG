@@ -75,7 +75,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   }
 
   onKeyboardEvent(e: KeyboardEvent): void {
-    console.log(e);
+    //console.log(e);
     if (this.hasActiveEvent) return;
 
     switch (e.key) {
