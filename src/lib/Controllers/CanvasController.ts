@@ -22,7 +22,7 @@ let mouseStartY: number | null = null;
 export default class Canvas implements Drawable {
     
     static canvas: HTMLCanvasElement;
-    static readonly DEBUG: boolean = true;
+    static readonly DEBUG: boolean = false;
 
     private readonly ctx: CanvasRenderingContext2D;
     // private map!: MapData;
