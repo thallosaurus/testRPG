@@ -17,8 +17,6 @@ const WEBMANIFEST = {
     }],
     "background_color": "#000000",
     "theme_color": "#000000",
-    "start_url": "https://u703.de/",
-    "scope": "https://u703.de/",
     "display": "standalone",
     "orientation": "landscape-primary"
 }

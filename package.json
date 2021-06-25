@@ -7,12 +7,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf build && rm -rf node_modules",
     "build": "npx tsc && npx browserify build_ts/main.js -p esmify > build/module.js",
-    "start": "nodemon -V devserver/server.js"
+    "start": "nodemon -V devserver/server.js",
+    "watch": "npx watchify src/module.ts -p tsify -o build/out.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^4.17.12",
     "@types/node": "^15.12.2",
+    "@types/ws": "^7.4.5",
     "browserify": "^17.0.0",
     "eslint": "^7.28.0",
     "esmify": "^2.1.1",
@@ -22,6 +25,9 @@
   },
   "dependencies": {
     "socket.io": "^4.1.2",
-    "socket.io-client": "^4.1.2"
+    "socket.io-client": "^4.1.2",
+    "tsify": "^5.0.4",
+    "watchify": "^4.0.0",
+    "ws": "^7.4.6"
   }
 }

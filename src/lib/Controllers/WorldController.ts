@@ -182,6 +182,11 @@ export class WorldController implements Drawable, VisualOffset, InputHandler, So
             mapdata?.drawAt(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
           }
 
+        }
+      }
+      
+      for (let y = -2; y < this.tilesAvailableY + 1; y++) {
+        for (let x = -2; x < this.tilesAvailableX + 1; x++) {
           let char = this.charCont.getMapDataXY(x + this.x - Math.floor(this.tilesAvailableX / 2), y + this.y - Math.floor(this.tilesAvailableY / 2));
           char?.drawAt(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
         }
