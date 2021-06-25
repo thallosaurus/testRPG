@@ -1,6 +1,6 @@
-import { Drawable } from "../Interfaces/Drawable.js";
-import { VisualOffset } from "../Interfaces/VisualOffset.js";
-import Canvas from "./CanvasController.js";
+import { Drawable } from "../Interfaces/Drawable";
+import { VisualOffset } from "../Interfaces/VisualOffset";
+import Canvas from "./CanvasController";
 
 export class AnimationController implements Drawable {
     static animationQueue: Array<AnimationObject> = [];

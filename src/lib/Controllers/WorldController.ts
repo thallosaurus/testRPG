@@ -1,15 +1,15 @@
-import Canvas from "./CanvasController.js";
-import { Drawable } from "../Interfaces/Drawable.js";
-import { GameMap } from "../Map/GameMap.js";
-import { VisualOffset } from "../Interfaces/VisualOffset.js";
-import { InputHandler } from "../Interfaces/InputHandler.js";
-import { ResourceLoader } from "../Interfaces/ResourceLoader.js";
+import Canvas from "./CanvasController";
+import { Drawable } from "../Interfaces/Drawable";
+import { GameMap } from "../Map/GameMap";
+import { VisualOffset } from "../Interfaces/VisualOffset";
+import { InputHandler } from "../Interfaces/InputHandler";
+import { ResourceLoader } from "../Interfaces/ResourceLoader";
 
-import { AnimationController } from "./AnimationController.js";
-import { MapDrawable } from "../Interfaces/MapDrawable.js";
-import { CharacterController } from "./CharacterController.js";
-import { PlayerDirection } from "../Map/MapObjects/Character.js";
-import { SocketSubscriber } from "../Interfaces/SocketSubscriber.js";
+import { AnimationController } from "./AnimationController";
+import { MapDrawable } from "../Interfaces/MapDrawable";
+import { CharacterController } from "./CharacterController";
+import { PlayerDirection } from "../Map/MapObjects/Character";
+import { SocketSubscriber } from "../Interfaces/SocketSubscriber";
 
 export class WorldController implements Drawable, VisualOffset, InputHandler, SocketSubscriber {
 

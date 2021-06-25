@@ -1,6 +1,6 @@
-import { MapDrawable } from "../Interfaces/MapDrawable.js";
-import { MapUtils } from "../Utilities.js";
-import { GameMap } from "./GameMap.js";
+import { MapDrawable } from "../Interfaces/MapDrawable";
+import { MapUtils } from "../Utilities";
+import { GameMap } from "./GameMap";
 
 export class SimpleTile implements MapDrawable {
     private id: number;

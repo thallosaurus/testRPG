@@ -1,4 +1,5 @@
-import Canvas from './lib/Controllers/CanvasController.js';
+import Canvas from './lib/Controllers/CanvasController';
+import io from 'socket.io-client';
 
 // let canvas;
 

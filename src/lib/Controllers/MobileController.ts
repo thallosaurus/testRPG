@@ -1,8 +1,8 @@
-import { Z_ASCII } from "zlib";
-import { Drawable } from "../Interfaces/Drawable.js";
-import { InputHandler } from "../Interfaces/InputHandler.js";
-import { ImageLoader } from "../Interfaces/ResourceLoader.js";
-import Canvas from "./CanvasController.js";
+// import { Z_ASCII } from "zlib";
+import { Drawable } from "../Interfaces/Drawable";
+import { InputHandler } from "../Interfaces/InputHandler";
+import { ImageLoader } from "../Interfaces/ResourceLoader";
+import Canvas from "./CanvasController";
 
 export class MobileController implements Drawable, ImageLoader, InputHandler {
     onKeyboardEvent(e: KeyboardEvent): void {

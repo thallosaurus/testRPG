@@ -7,12 +7,12 @@
 // import { SocketConnection } from "./SocketConnection.js";
 // import { PlayerDirection } from "./Sprite.js";
 
-import { Drawable } from "../Interfaces/Drawable.js";
-import { GameMap } from "../Map/GameMap.js";
-import { ObjectRegistry } from "../ObjectRegistry.js";
-import { AnimationController } from "./AnimationController.js";
-import { MobileController } from "./MobileController.js";
-import { WorldController } from "./WorldController.js";
+import { Drawable } from "../Interfaces/Drawable";
+import { GameMap } from "../Map/GameMap";
+import { ObjectRegistry } from "../ObjectRegistry";
+import { AnimationController } from "./AnimationController";
+import { MobileController } from "./MobileController";
+import { WorldController } from "./WorldController";
 
 
 let mouseStartX: number | null = null;

@@ -1,8 +1,8 @@
-import { AnimationController } from "../../Controllers/AnimationController.js";
-import { MapDrawable } from "../../Interfaces/MapDrawable.js";
-import { ImageLoader } from "../../Interfaces/ResourceLoader.js";
-import { VisualOffset } from "../../Interfaces/VisualOffset.js";
-import { MapUtils } from "../../Utilities.js";
+import { AnimationController } from "../../Controllers/AnimationController";
+import { MapDrawable } from "../../Interfaces/MapDrawable";
+import { ImageLoader } from "../../Interfaces/ResourceLoader";
+import { VisualOffset } from "../../Interfaces/VisualOffset";
+import { MapUtils } from "../../Utilities";
 
 export class Character implements MapDrawable, ImageLoader, VisualOffset {
     static imageUrl:string | null = null;

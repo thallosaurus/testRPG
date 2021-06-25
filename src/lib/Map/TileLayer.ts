@@ -1,6 +1,6 @@
-import { SubMappable } from "../Controllers/WorldController.js";
-import { MapUtils } from "../Utilities.js";
-import { SimpleTile } from "./SimpleTile.js";
+import { SubMappable } from "../Controllers/WorldController";
+import { MapUtils } from "../Utilities";
+import { SimpleTile } from "./SimpleTile";
 import { TiledJSONLevelLayer, TiledJSONLevelLayerProperties } from "./TiledJSONMap";
 
 export class TileLayer implements SubMappable, TiledJSONLevelLayer {

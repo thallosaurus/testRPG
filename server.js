@@ -26,6 +26,11 @@ app.use("/js", (req, res, next) => {
     next();
 }, static("build_ts"));
 
+app.get("/main.js", (req, res, next) => {
+    console.log("[DEVSERVER] Sending main module");
+    res.sendFile("/dist/main.bundle.js", { root: __dirname });
+});
+
 app.use("/assets", (req, res, next) => {
     console.log(`[DEVSERVER] Sending Sprite ${req.originalUrl}`);
     next();

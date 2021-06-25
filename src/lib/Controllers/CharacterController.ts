@@ -1,10 +1,8 @@
-import { MapDrawable } from "../Interfaces/MapDrawable.js";
-import { ImageLoader } from "../Interfaces/ResourceLoader.js";
-import { SocketSubscriber } from "../Interfaces/SocketSubscriber.js";
-import { Character, PlayerDirection } from "../Map/MapObjects/Character.js";
-import { SimpleTile } from "../Map/SimpleTile.js";
-import { MapUtils } from "../Utilities.js";
-import { Mappable, SubMappable, WorldController } from "./WorldController.js";
+import { MapDrawable } from "../Interfaces/MapDrawable";
+import { ImageLoader } from "../Interfaces/ResourceLoader";
+import { SocketSubscriber } from "../Interfaces/SocketSubscriber";
+import { Character, PlayerDirection } from "../Map/MapObjects/Character";
+import { Mappable, SubMappable, WorldController } from "./WorldController";
 
 export class CharacterController implements SubMappable, ImageLoader, SocketSubscriber {
     

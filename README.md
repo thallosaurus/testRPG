@@ -3,5 +3,7 @@ A small experiment by me with the aim to create a MMO-Game in the style of Ninte
 
 ## Festures
 - Tiled integration
-- no 3rd party modules
 - written in typescript
+
+## How to start development?
+Run `npm start` and `node .`. You are now set to develop

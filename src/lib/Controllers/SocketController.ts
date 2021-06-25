@@ -1,15 +1,15 @@
-import { SocketSubscriber } from "../Interfaces/SocketSubscriber.js";
-import { ObjectRegistry } from "../ObjectRegistry.js";
+import { SocketSubscriber } from "../Interfaces/SocketSubscriber";
+import { ObjectRegistry } from "../ObjectRegistry";
 
 export class SocketController {
-    socket: WebSocket;
+    // socket: WebSocket;
     subs: Array<SocketSubscriber> = [];
     constructor() {
-        this.socket = new WebSocket("ws://localhost");
-        this.socket.onmessage = this.onmessage.bind(this);
+        // this.socket = new WebSocket("ws://localhost");
+        // this.socket.onmessage = this.onmessage.bind(this);
     }
 
     onmessage(event: MessageEvent) {
-        ObjectRegistry.passToSocketSubscriber(event);
+        // ObjectRegistry.passToSocketSubscriber(event);
     }
 }

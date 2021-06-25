@@ -1,11 +1,11 @@
-import { Mappable, SubMappable } from "../Controllers/WorldController.js";
-import { MapDrawable } from "../Interfaces/MapDrawable.js";
-import { ImageLoader } from "../Interfaces/ResourceLoader.js";
-import { SocketSubscriber } from "../Interfaces/SocketSubscriber.js";
-import { ObjectLayer } from "./ObjectLayer.js";
-import { SimpleTile } from "./SimpleTile.js";
-import { TiledJSONLevelLayer, TiledJSONMap, TiledJSONObjectLayer } from "./TiledJSONMap.js";
-import { TileLayer } from "./TileLayer.js";
+import { Mappable, SubMappable } from "../Controllers/WorldController";
+import { MapDrawable } from "../Interfaces/MapDrawable";
+import { ImageLoader } from "../Interfaces/ResourceLoader";
+// import { SocketSubscriber } from "../Interfaces/SocketSubscriber.js";
+import { ObjectLayer } from "./ObjectLayer";
+import { SimpleTile } from "./SimpleTile";
+import { TiledJSONLevelLayer, TiledJSONMap, TiledJSONObjectLayer } from "./TiledJSONMap";
+import { TileLayer } from "./TileLayer";
 
 export class GameMap implements Mappable, TiledJSONMap, ImageLoader {
     // layer_: (SimpleLayer | ObjectLayer)[] = [];

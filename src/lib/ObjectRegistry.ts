@@ -1,11 +1,11 @@
 // import { Drawable } from "./Controllers/CanvasController";
 
-import Canvas from "./Controllers/CanvasController.js";
-import { Drawable } from "./Interfaces/Drawable.js";
-import { InputHandler } from "./Interfaces/InputHandler.js";
-import { ResourceLoader } from "./Interfaces/ResourceLoader.js";
-import { SocketSubscriber } from "./Interfaces/SocketSubscriber.js";
-import { VisualOffset } from "./Interfaces/VisualOffset.js";
+import Canvas from "./Controllers/CanvasController";
+import { Drawable } from "./Interfaces/Drawable";
+import { InputHandler } from "./Interfaces/InputHandler";
+import { ResourceLoader } from "./Interfaces/ResourceLoader";
+import { SocketSubscriber } from "./Interfaces/SocketSubscriber";
+import { VisualOffset } from "./Interfaces/VisualOffset";
 
 export class ObjectRegistry {
     static renderQueue: Drawable[] = [];
