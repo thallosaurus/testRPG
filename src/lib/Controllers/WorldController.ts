@@ -1,7 +1,6 @@
 import Canvas from "./CanvasController.js";
 import { Drawable } from "../Interfaces/Drawable.js";
 import { GameMap } from "../Map/GameMap.js";
-import { SimpleTile } from "../Map/SimpleTile.js";
 import { VisualOffset } from "../Interfaces/VisualOffset.js";
 import { InputHandler } from "../Interfaces/InputHandler.js";
 import { ResourceLoader } from "../Interfaces/ResourceLoader.js";
@@ -89,36 +88,32 @@ export class WorldController implements Drawable, VisualOffset, InputHandler, So
 
     switch (e.key) {
       case "w":
-        this.charCont.playerLookAt(PlayerDirection.UP);
-        if (this.check(this.map!.getMapDataXY(this.x, this.y - 1)) && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y - 1))) AnimationController.scheduleMapMoveAnimation(this, "y", true);
-        break;
-        
-        case "a":
-        this.charCont.playerLookAt(PlayerDirection.LEFT);
-        if (this.check(this.map!.getMapDataXY(this.x  - 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x - 1, this.y))) AnimationController.scheduleMapMoveAnimation(this, "x", true);
-        break;
-        
-        case "s":
-        this.charCont.playerLookAt(PlayerDirection.DOWN);
-        if (this.check(this.map!.getMapDataXY(this.x, this.y + 1)) && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y + 1))) AnimationController.scheduleMapMoveAnimation(this, "y", false);
-        break;
-        
-        case "d":
-        this.charCont.playerLookAt(PlayerDirection.RIGHT);
-        if (this.check(this.map!.getMapDataXY(this.x + 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x +1, this.y)) ) AnimationController.scheduleMapMoveAnimation(this, "x", false);
+        this.movePlayerUp();
         break;
 
-        case "ArrowUp":
+      case "a":
+        this.movePlayerLeft();
+        break;
+
+      case "s":
+        this.movePlayerDown();
+        break;
+
+      case "d":
+        this.movePlayerRight();
+        break;
+
+      case "ArrowUp":
         this.charCont.allCharsUp();
         break;
-        case "ArrowLeft":
+      case "ArrowLeft":
         this.charCont.allCharsLeft();
         break;
 
-        case "ArrowDown":
+      case "ArrowDown":
         this.charCont.allCharsDown();
         break;
-        case "ArrowRight":
+      case "ArrowRight":
         this.charCont.allCharsRight();
         break;
 
@@ -126,7 +121,27 @@ export class WorldController implements Drawable, VisualOffset, InputHandler, So
         console.log("u");
         this.currentMap?.unloadResource();
         break;
-      }
+    }
+  }
+
+  public movePlayerUp() {
+    this.charCont.playerLookAt(PlayerDirection.UP);
+    if (this.check(this.map!.getMapDataXY(this.x, this.y - 1)) && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y - 1))) AnimationController.scheduleMapMoveAnimation(this, "y", true);
+  }
+
+  public movePlayerDown() {
+    this.charCont.playerLookAt(PlayerDirection.DOWN);
+    if (this.check(this.map!.getMapDataXY(this.x, this.y + 1)) && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y + 1))) AnimationController.scheduleMapMoveAnimation(this, "y", false);
+  }
+
+  public movePlayerLeft() {
+    this.charCont.playerLookAt(PlayerDirection.LEFT);
+    if (this.check(this.map!.getMapDataXY(this.x - 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x - 1, this.y))) AnimationController.scheduleMapMoveAnimation(this, "x", true);
+  }
+
+  public movePlayerRight() {
+    this.charCont.playerLookAt(PlayerDirection.RIGHT);
+    if (this.check(this.map!.getMapDataXY(this.x + 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x + 1, this.y))) AnimationController.scheduleMapMoveAnimation(this, "x", false);
   }
 
   private checkNPC(o: MapDrawable | null): boolean {
@@ -175,13 +190,13 @@ export class WorldController implements Drawable, VisualOffset, InputHandler, So
       this.charCont.drawPlayer(ctx, Math.floor(this.tilesAvailableX / 2) * this.tileWidth + this.tileWidth / 2, Math.floor(this.tilesAvailableY / 2) * this.tileHeight + this.tileHeight / 2, this.tileWidth, this.tileHeight);
     }
   }
-  
+
   redrawDbg(ctx: CanvasRenderingContext2D, timestamp: number): void {
     if (isAMapLoaded(this.map)) {
       for (let y = -2; y < this.tilesAvailableY + 1; y++) {
         for (let x = -2; x < this.tilesAvailableX + 1; x++) {
           let data = this.map.getMapDataXY(x + this.x - Math.floor(this.tilesAvailableX / 2), y + this.y - Math.floor(this.tilesAvailableY / 2));
-          
+
           for (let mapdata of data) {
             mapdata?.drawDbg?.(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
 
@@ -193,7 +208,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler, So
     }
   }
 
-  
+
 }
 
 function isAMapLoaded(map: any): map is Mappable {

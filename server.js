@@ -11,7 +11,7 @@ const WEBMANIFEST = {
     "short_name": "schrottimon",
     "description": "schrottimon",
     "icons": [{
-        "src": "assets/icon_512.png",
+        "src": "/assets/icon_512.png",
         "type": "image/png",
         "sizes": "512x512"
     }],

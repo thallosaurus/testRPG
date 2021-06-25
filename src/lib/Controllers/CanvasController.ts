@@ -11,6 +11,7 @@ import { Drawable } from "../Interfaces/Drawable.js";
 import { GameMap } from "../Map/GameMap.js";
 import { ObjectRegistry } from "../ObjectRegistry.js";
 import { AnimationController } from "./AnimationController.js";
+import { MobileController } from "./MobileController.js";
 import { WorldController } from "./WorldController.js";
 
 
@@ -65,6 +66,7 @@ export default class Canvas implements Drawable {
                 // alert("ok");
                 this.updateCanvasSize();
                 // ObjectRegistry.mobileController?.updateTouchEvents();
+                MobileController.resetController();
             };
 
             Canvas.canvas.addEventListener("contextmenu", (event) => {
@@ -144,6 +146,8 @@ export default class Canvas implements Drawable {
             mouseStartY = event.clientY;
         });
 
+        window.addEventListener("touchstart", (event) => {ObjectRegistry.onTouchEvent(event)});
+
         Canvas.DEBUG && window.addEventListener("mousemove", (event) => {
             if (mouseStartX !== null && mouseStartY !== null) {
                 let diffX = event.clientX - mouseStartX;
@@ -210,20 +214,22 @@ export default class Canvas implements Drawable {
         // let blackout = new BlackoutAnimation();
         // ObjectRegistry.addToRenderQueue(blackout);
         
-        // let mobileInput = new MobileController();
-        // if (isPhone()) ObjectRegistry.addToRenderQueue(mobileInput);
         
         // let fpsCounter = new FPSCounter();
         // ObjectRegistry.addToRenderQueue(fpsCounter);
-
+        
         let animationController = new AnimationController();
         ObjectRegistry.addToRenderQueue(animationController);
-    
+        
         let worldcontroller = new WorldController();
         let gm = await GameMap.getLevel("unbenannt1.json");
         worldcontroller.loadMap(gm);
 
         ObjectRegistry.addToRenderQueue(worldcontroller);
+        
+        let mobileInput = new MobileController();
+        if (isPhone()) ObjectRegistry.addToRenderQueue(mobileInput);
+
 
         ObjectRegistry.resolveAllSprites();
         

@@ -41,6 +41,18 @@ export class ObjectRegistry {
         });
     }
 
+    static onTouchEvent(e: TouchEvent) {
+        this.renderQueue.filter(objectIsInputHandler).forEach(f => {
+            (f as unknown as InputHandler).onTouchEvent?.(e);
+        });
+    }
+
+    static onMouseEvent(e: MouseEvent) {
+        this.renderQueue.filter(objectIsInputHandler).forEach(f => {
+            (f as unknown as InputHandler).onMouseEvent?.(e);
+        });
+    }
+
     static passToSocketSubscriber(event: MessageEvent): void {
         this.renderQueue
         .filter(objectIsSocketSubscriber).
