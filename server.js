@@ -1,14 +1,14 @@
-//const expressStatic = require("express").static;
 //import { express } from 'express';
-//const express = require("express");
-//const app = express();
-//const http = require("http").Server(app);
+const express = require("express");
+const app = express();
+const http = require("http").Server(app);
+const expressStatic = express.static;
 //import http_ from 'http';
 //const http = http_.createServer(app);
 
 //let io = require('socket.io')(http);
 //const MultiplayerServer = require(path.join(__dirname, "./build/lib/Server/ServerMain.js"));
-import { MultiplayerServer } from './lib/Server/ServerMain.ts';
+//import { MultiplayerServer } from './lib/Server/ServerMain.ts';
 //const server = new MultiplayerServer();
 //const MultiplayerServer = require(;
 
@@ -32,7 +32,7 @@ const WEBMANIFEST = {
 app.use("/js", (req, res, next) => {
     console.log(`[DEVSERVER] Sending ${req.originalUrl}`);
     next();
-}, Static("build_ts"));
+}, expressStatic("build_ts"));
 
 app.get("/main.js", (req, res, next) => {
     console.log("[DEVSERVER] Sending main module");
@@ -42,12 +42,12 @@ app.get("/main.js", (req, res, next) => {
 app.use("/assets", (req, res, next) => {
     console.log(`[DEVSERVER] Sending Sprite ${req.originalUrl}`);
     next();
-}, expresStatic("assets"));
+}, expressStatic("assets"));
 
 app.use("/src", (req, res, next) => {
     console.log(`[DEVSERVER] Sending Source ${req.originalUrl}`);
     next();
-}, expresStatic("src"));
+}, expressStatic("src"));
 
 app.get("/", (req, res) => {
     res.sendFile("/devassets/index.html", { root: __dirname });
@@ -61,6 +61,6 @@ app.get("/manifest.webmanifest", (req, res) => {
     res.send(WEBMANIFEST);
 });
 
-/*app.listen("8080", () => {
+app.listen("8080", () => {
     console.log("Dev Server running on :8080");
-});*/
+});
