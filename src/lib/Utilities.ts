@@ -31,6 +31,11 @@ export namespace MapUtils {
             return "grey";
     }
 
+    export function getFromURL(param: string) {
+        let u = new URLSearchParams(location.search);
+        return u.get(param);
+    }
+
     export interface Vector2D {
         x: number;
         y: number;

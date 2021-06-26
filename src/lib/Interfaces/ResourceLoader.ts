@@ -13,3 +13,7 @@ export interface ImageLoader extends ResourceLoader {
 export interface LevelLoader extends ResourceLoader {
     // getResource(): TiledJSONMap | null;
 }
+
+export interface AudioLoader extends ResourceLoader {
+    
+}

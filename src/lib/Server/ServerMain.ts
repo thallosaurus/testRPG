@@ -11,6 +11,8 @@ export namespace MultiplayerServer {
             this.http = http.createServer();
             this.io = new Server(this.http);
 
+            this.setupSocket(this.io);
+
             this.http.listen(this.port, () => {
                 console.log("Socket Server is listening to Port " + this.port);
             });
@@ -24,4 +26,5 @@ export namespace MultiplayerServer {
             });
         }
     }
+    new ServerMain();
 }

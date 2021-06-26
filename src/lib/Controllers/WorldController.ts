@@ -8,7 +8,8 @@ import { ResourceLoader } from "../Interfaces/ResourceLoader";
 import { AnimationController } from "./AnimationController";
 import { MapDrawable } from "../Interfaces/MapDrawable";
 import { CharacterController } from "./CharacterController";
-import { PlayerDirection } from "../Map/MapObjects/Character";
+import { Character, PlayerDirection } from "../Map/MapObjects/Character";
+import { AudioController } from "./AudioController";
 
 export class WorldController implements Drawable, VisualOffset, InputHandler {
 
@@ -78,6 +79,8 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
     //console.log(e);
     if (this.hasActiveEvent) return;
 
+    console.log(e);
+
     switch (e.key) {
       case "w":
         this.movePlayerUp();
@@ -93,6 +96,15 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
 
       case "d":
         this.movePlayerRight();
+        break;
+
+      case "Enter":
+        //alert("Hello from worldcontroller");
+        Character.playDingSound();
+        break;
+
+      case "i":
+        AudioController.activateAudioContext();
         break;
 
       case "ArrowUp":

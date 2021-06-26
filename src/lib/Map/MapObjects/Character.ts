@@ -1,5 +1,6 @@
 import { MultiplayerClient } from "../../Client/SocketClient";
 import { AnimationController } from "../../Controllers/AnimationController";
+import { AudioController } from "../../Controllers/AudioController";
 import { MapDrawable } from "../../Interfaces/MapDrawable";
 import { ImageLoader } from "../../Interfaces/ResourceLoader";
 import { VisualOffset } from "../../Interfaces/VisualOffset";
@@ -8,6 +9,8 @@ import { MapUtils } from "../../Utilities";
 export class Character implements MapDrawable, ImageLoader, VisualOffset {
     static imageUrl:string | null = null;
     static image:HTMLImageElement | null = null;
+
+    static dingSound: ArrayBuffer;
 
     progress: number = 0;
     direction: PlayerDirection = PlayerDirection.DOWN;
@@ -26,18 +29,19 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset {
             );
     }
 
+    
     public setAnimationProgress(ts: number) {
         this.progress = Math.floor(ts / 125) % 4;
     }
-
+    
     public lookAt(direction: PlayerDirection) {
         this.direction = direction;
     }
-
+    
     constructor(x: number, y: number) {
         //super("wss://localhost:")
     }
-
+    
     hasActiveEvent: boolean = false;
     visualXOffset: number = 0;
     visualYOffset: number = 0;
@@ -69,7 +73,7 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset {
         this.visualYOffset = 0;
         this.y += (pos ? 1 : -1) * amount;
     }
-
+    
     moveUp(distance: number) {
         this.lookAt(PlayerDirection.UP);
         AnimationController.scheduleMapMoveAnimation(this, "y", false, distance);
@@ -90,6 +94,11 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset {
         AnimationController.scheduleMapMoveAnimation(this, "x", true, distance);
     }
 
+    static playDingSound() {
+        //alert("ding");
+        AudioController.playSound(Character.dingSound);
+    }
+    
     resolveResource(): Promise<void> {
         // throw new Error("Method not implemented.");
         return new Promise<void>((res, rej) => {
@@ -100,6 +109,12 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset {
                 Character.imageUrl = URL.createObjectURL(blob);
                 Character.image = new Image();
                 Character.image.src = Character.imageUrl;
+            });
+            
+            fetch("/assets/sounds/ding.mp3").then(e => {
+                return e.arrayBuffer()
+            }).then(e => {
+                Character.dingSound = e;
                 res();
             });
         })

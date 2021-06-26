@@ -96,7 +96,7 @@ export class GameMap implements Mappable, TiledJSONMap, ImageLoader {
                 GameMap.resource.src = this.resourceUrl;
                 res();
             });
-        })
+        });
     }
 
     public getMapDataXY(x: number, y: number): (MapDrawable | null)[] {

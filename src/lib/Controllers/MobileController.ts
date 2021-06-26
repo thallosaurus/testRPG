@@ -2,6 +2,7 @@
 import { Drawable } from "../Interfaces/Drawable";
 import { InputHandler } from "../Interfaces/InputHandler";
 import { ImageLoader } from "../Interfaces/ResourceLoader";
+import { AudioController } from "./AudioController";
 import Canvas from "./CanvasController";
 
 export class MobileController implements Drawable, ImageLoader, InputHandler {
@@ -28,6 +29,11 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
 
     private imageUrl: string | null = null;
     private image: HTMLImageElement | null = null;
+    private buttonsImageUrl: string | null = null;
+    private buttonsImage: HTMLImageElement | null = null;
+    private unmuteImageUrl: string | null = null;
+    private unmuteImage: HTMLImageElement | null = null;
+
     static touchEvents: Array<TouchEventDpad> = [];
 
     get dpadX() {
@@ -46,6 +52,20 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
         return 160;
     }
 
+    get safeAreaLeft() {
+        return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sal"));
+    }
+
+    get safeAreaRight() {
+        return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sar"));
+    }
+    get safeAreaBottom() {
+        return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sab"));
+    }
+    get safeAreaTop() {
+        return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sat"));
+    }
+
     resolveResource(): Promise<void> {
         // throw new Error("Method not implemented.");
         return new Promise<void>((res, rej) => {
@@ -56,6 +76,25 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
                     this.imageUrl = URL.createObjectURL(blob);
                     this.image = new Image();
                     this.image.src = this.imageUrl;
+                });
+
+            fetch("/assets/controls/unmute.png")
+            .then(f => {
+                return f.blob();
+            })
+            .then(blob => {
+                this.unmuteImageUrl = URL.createObjectURL(blob);
+                this.unmuteImage = new Image();
+                this.unmuteImage.src = this.unmuteImageUrl;
+            })
+
+                fetch("/assets/controls/a-button.png")
+                .then((e) => {
+                    return e.blob();
+                }).then(blob => {
+                    this.buttonsImageUrl = URL.createObjectURL(blob);
+                    this.buttonsImage = new Image();
+                    this.buttonsImage.src = this.buttonsImageUrl;
                     res();
                 });
         })
@@ -65,14 +104,17 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
     }
 
     redraw(ctx: CanvasRenderingContext2D, timestamp: number): void {
-        // ctx.fillStyle = "red";
-        // ctx.fillRect(0, 0, 100, 100);
-
-        //draw D-Pad in bottom left corner:
-        // console.log(this.texture);
         if (MobileController.touchEvents.length === 0) this.updateTouchEvents();
         if (this.image) {
-            ctx.drawImage(this.image, 0, Canvas.height - 160);
+            ctx.drawImage(this.image, this.safeAreaLeft, Canvas.height - 160 - this.safeAreaBottom);
+        }
+
+        if (this.buttonsImage) {
+            ctx.drawImage(this.buttonsImage, Canvas.width - this.safeAreaRight - 75, Canvas.height - this.safeAreaBottom - 150, 60, 60);
+        }
+
+        if (this.unmuteImage && !AudioController.audioCtx) {
+            ctx.drawImage(this.unmuteImage, Canvas.width / 2 - 30, this.safeAreaTop, 60, 60);
         }
     }
 
@@ -85,12 +127,13 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
     }
 
     public updateTouchEvents() {
-        // MobileController.touchEvents = [];
-
-        this.addTouchHandler(this.dpadX + this.dpadWidth / 3, this.dpadY, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadUp.bind(this));    //up
-        this.addTouchHandler(this.dpadX + this.dpadWidth / 3, this.dpadY + this.dpadHeight / 3 * 2, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadDown.bind(this));    //down
-        this.addTouchHandler(this.dpadX + this.dpadWidth / 3 * 2, this.dpadY + this.dpadHeight / 3, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadRight.bind(this));    //right
-        this.addTouchHandler(this.dpadX, this.dpadY + this.dpadHeight / 3, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadLeft.bind(this));    //left
+        this.addTouchHandler(this.safeAreaLeft + this.dpadX + this.dpadWidth / 3, this.dpadY - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadUp.bind(this));    //up
+        this.addTouchHandler(this.safeAreaLeft + this.dpadX + this.dpadWidth / 3, this.dpadY + this.dpadHeight / 3 * 2 - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadDown.bind(this));    //down
+        this.addTouchHandler(this.safeAreaLeft + this.dpadX + this.dpadWidth / 3 * 2, this.dpadY + this.dpadHeight / 3 - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadRight.bind(this));    //right
+        this.addTouchHandler(this.safeAreaLeft + this.dpadX, this.dpadY + this.dpadHeight / 3 - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadLeft.bind(this));    //left
+        
+        this.addTouchHandler(Canvas.width - this.safeAreaRight - 75, Canvas.height - this.safeAreaBottom - 150, 60, 60, this.aButton.bind(this));
+        this.addTouchHandler(Canvas.width / 2 - 30, this.safeAreaTop, 60, 60, () => AudioController.activateAudioContext());
     }
 
     static resetController() {
@@ -133,6 +176,10 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
         // console.log("right");
         // ObjectRegistry.player.moveRight();
         window.dispatchEvent(new KeyboardEvent("keydown", {key: "d"}));
+    }
+
+    private aButton() {
+        window.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter"}))
     }
 }
 

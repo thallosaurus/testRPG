@@ -7,10 +7,12 @@
 // import { SocketConnection } from "./SocketConnection.js";
 // import { PlayerDirection } from "./Sprite.js";
 
+import { url } from "inspector";
 import { MultiplayerClient } from "../Client/SocketClient";
 import { Drawable } from "../Interfaces/Drawable";
 import { GameMap } from "../Map/GameMap";
 import { ObjectRegistry } from "../ObjectRegistry";
+import { MapUtils } from "../Utilities";
 import { AnimationController } from "./AnimationController";
 import { MobileController } from "./MobileController";
 import { WorldController } from "./WorldController";
@@ -22,7 +24,7 @@ let mouseStartY: number | null = null;
 export default class Canvas implements Drawable {
     
     static canvas: HTMLCanvasElement;
-    static readonly DEBUG: boolean = false;
+    static readonly DEBUG: boolean = MapUtils.getFromURL("debug") == "1" ?? false;
 
     private readonly ctx: CanvasRenderingContext2D;
     //static readonly client: MultiplayerClient.Client = new MultiplayerClient.Client("wss://localhost:4000");
