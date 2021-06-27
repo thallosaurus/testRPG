@@ -15,8 +15,8 @@ export namespace MultiplayerClient {
             return this.socket;
         }
 
-        constructor(address: string) {
-            this.socket = io(address);
+        constructor(address?: string) {
+            this.socket = io(address ?? "");
             // debugger;
             this.join().then((id: string) => {
                 // console.log("Join, this is my id: ", id);
@@ -27,7 +27,8 @@ export namespace MultiplayerClient {
 
         join(): Promise<string> {
             console.log("Sending Join Event");
-            return this.send<PlayerJoinEvent>("playerjoin").then((e: PlayerJoinEvent) => {
+            return this.send<PlayerJoinEvent>("clientjoin").then((e: PlayerJoinEvent) => {
+                console.log("join event", e);
                 return e.id;
             });
         }

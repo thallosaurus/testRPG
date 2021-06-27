@@ -2,7 +2,7 @@ import { Server, Socket } from 'socket.io';
 import http from 'http';
 import { Player } from './Player';
 import express from 'express';
-import { BoardUpdate, KillEvent, NewPlayerEvent, PositionUpdate, UpdateEvent } from '../Interfaces/ServerEvents';
+import { BoardUpdate, ClientJoinEvent, KillEvent, NewPlayerEvent, PositionUpdate, UpdateEvent } from '../Interfaces/ServerEvents';
 import { threadId } from 'worker_threads';
 
 export namespace MultiplayerServer {
@@ -46,61 +46,84 @@ export namespace MultiplayerServer {
         private setupSocket(io: Server) {
             io.on("connection", (socket: Socket) => {
                 console.log("Someone connected");
-                socket.on("playerjoin", (msg: any) => {
+                socket.on("clientjoin", (msg: void) => {
                     console.log("Player Joined");
                     let data = {
                         id: socket.id,
                         x: 4,
-                        y: 4
+                        y: 6
                     } as NewPlayerEvent;
-                    
+
+                    let player = new Player(socket, this);
+                    this.connections.push(player);
+                    socket.emit("clientjoin", {
+                        id: socket.id
+                    } as ClientJoinEvent)
+
                     this.connections.forEach((e) => {
                         e.socket.emit("newplayer", data);
                     });
-                    
-                    
+
+                    console.log(this.connections);
 
                     let buf: PositionUpdate[] = [];
-                    this.connections.forEach((e) => {
-                        console.log(e.x, e.y);
+                    this.connections.filter((e) => {
+                        return e.id !== socket.id
+                    }).forEach((e) => {
+                        console.log("buffer", e.x, e.y);
                         buf.push({
                             id: e.id,
                             x: e.x_,
                             y: e.y_
                         });
                     });
-                    socket.emit("playerjoin", data);
-                    
-                    console.log("bbbb", buf);
+
+                    console.log("Players", buf);
                     socket.emit("hello", {
-                        players: [
-                            {
-                                id: "",
-                                x: 5,
-                                y: 5
-                            } as PositionUpdate
-                        ]
+                        players: buf
                     });
-                    
-                    // socket.emit("hello", JSON.stringify(this.connections));
-                    
-/*                     socket.emit("boardupdate", {
-                        players: this.connections
-                    }); */
                 });
-                let player = new Player(socket, this);
-                this.connections.push(player);
+
+
+                /*
+                let buf: PositionUpdate[] = [];
+                this.connections.forEach((e) => {
+                    console.log("buffer", e.x, e.y);
+                    buf.push({
+                        id: e.id,
+                        x: e.x_,
+                        y: e.y_
+                    });
+                });
+                // socket.emit("playerjoin", data);
+                
+                console.log("bbbb", buf);
+                socket.emit("hello", {
+                    players: buf
+                    ]
+                });
+                
+                // socket.emit("hello", JSON.stringify(this.connections));
+                
+/*                     socket.emit("boardupdate", {
+                    players: this.connections
+                }); *
+            }); */
             });
         }
-        
+
         public kill(p: Player) {
             this.connections = this.connections.filter(e => {
                 return e !== p;
             });
 
             this.connections.forEach(e => {
-                e.socket.emit("kill", {id: p.id} as KillEvent);
+                e.socket.emit("kill", { id: p.id } as KillEvent);
             });
+        }
+
+        public emit(tag: string, data: any) {
+            this.io.emit(tag, data);
         }
 
         private setupRoutes() {
@@ -127,6 +150,12 @@ export namespace MultiplayerServer {
 
             this.expressApp.get("/manifest.webmanifest", (req, res) => {
                 res.send(WEBMANIFEST);
+            });
+
+            this.expressApp.get("/client.bundle.js.map", (req: express.Request, res: express.Response, next) => {
+                res.sendFile("client.bundle.js.map", { root: __dirname });
+                console.log("[DEVSERVER] Sending main client bundle Sourcemap");
+                // res.sendFile("client.bundle.js");
             });
         }
     }

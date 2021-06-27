@@ -69,7 +69,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   }
 
   constructor() {
-
+    this.charCont.setParent(this);
   }
 
   finalizeX(pos: boolean, distance: number): void {
@@ -146,22 +146,38 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
 
   public movePlayerUp() {
     this.charCont.playerLookAt(PlayerDirection.UP);
-    if (this.check(WorldController.map!.getMapDataXY(this.x, this.y - 1)) && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y - 1))) AnimationController.scheduleMapMoveAnimation(this, "y", true);
+    if (this.check(WorldController.map!.getMapDataXY(this.x, this.y - 1))
+      && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y - 1))) {
+      // AnimationController.scheduleMapMoveAnimation(this, "y", true);
+      this.charCont.moveOwnUp();
+      
+    }
   }
-
+  
   public movePlayerDown() {
     this.charCont.playerLookAt(PlayerDirection.DOWN);
-    if (this.check(WorldController.map!.getMapDataXY(this.x, this.y + 1)) && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y + 1))) AnimationController.scheduleMapMoveAnimation(this, "y", false);
+    if (this.check(WorldController.map!.getMapDataXY(this.x, this.y + 1)) && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y + 1))) {
+      // AnimationController.scheduleMapMoveAnimation(this, "y", false);
+      this.charCont.moveOwnDown();
+    }
   }
 
   public movePlayerLeft() {
     this.charCont.playerLookAt(PlayerDirection.LEFT);
-    if (this.check(WorldController.map!.getMapDataXY(this.x - 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x - 1, this.y))) AnimationController.scheduleMapMoveAnimation(this, "x", true);
+    if (this.check(WorldController.map!.getMapDataXY(this.x - 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x - 1, this.y))) {
+      // AnimationController.scheduleMapMoveAnimation(this, "x", true);
+      this.charCont.moveOwnLeft();
+    }
   }
-
+  
   public movePlayerRight() {
     this.charCont.playerLookAt(PlayerDirection.RIGHT);
-    if (this.check(WorldController.map!.getMapDataXY(this.x + 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x + 1, this.y))) AnimationController.scheduleMapMoveAnimation(this, "x", false);
+    if (this.check(WorldController.map!.getMapDataXY(this.x + 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x + 1, this.y)))
+    {
+      // AnimationController.scheduleMapMoveAnimation(this, "x", false);
+      // this.charCont.
+      this.charCont.moveOwnRight();
+    }
   }
 
   private checkNPC(o: MapDrawable | null): boolean {
@@ -211,7 +227,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
 
           if (char !== null) {
             if ((char as Character).id === MultiplayerClient.Client.id) {
-              console.log((char as Character).id === MultiplayerClient.Client.id);
+              // console.log((char as Character).id === MultiplayerClient.Client.id);
               // return;
             };
             char.drawAt(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);

@@ -1,12 +1,12 @@
 import { Socket } from "socket.io";
-import { KillEvent, LevelChangeEvent, PlayerX, PlayerY } from "../Interfaces/ServerEvents";
+import { KillEvent, LevelChangeEvent, PlayerX, PlayerY, PositionUpdate } from "../Interfaces/ServerEvents";
 import { MultiplayerServer } from "./ServerMain";
 //import { MultiplayerServer } from "./ServerMain";
 import { SocketConnection } from "./SocketConnection";
 
 export class Player extends SocketConnection {
-    x_: number = 0;
-    y_: number = 0;
+    x_: number = 3;
+    y_: number = 6;
     level_!: string;
     id!: string;
     parent: MultiplayerServer.ServerMain;
@@ -21,22 +21,32 @@ export class Player extends SocketConnection {
 
     set x(x: number) {
         this.x_ += x;
-        this.sendUpdate({
+/*         this.sendUpdate({
             id: this.id,
             x: x,
             y: 0
-        });
-
-        console.log(x);
+        }); */
+        console.log(x, this.x_);
+        
     }
-
+    
+    get x() {
+        console.log("get x", this.x_);
+        return this.x_;
+    }
+    get y() {
+        console.log("get y", this.y_);
+        return this.y_;
+    }
+    
     set y(y: number) {
         this.y_ += y;
-        this.sendUpdate({
+/*         this.sendUpdate({
             id: this.id,
             x: 0,
             y: y
-        });
+        }); */
+        console.log(y, this.y_);
     }
 
     constructor(socket: Socket, parent: MultiplayerServer.ServerMain) {
@@ -57,12 +67,12 @@ export class Player extends SocketConnection {
 
     setupSocket() {
         super.setupSocket();
-        this.socket.on("levelchange", (lev: LevelChangeEvent) => {
-            console.log(lev);
+         this.socket.on("levelchange", (lev: LevelChangeEvent) => {
+            console.log("lev" + lev);
             this.level = lev.level;
         });
 
-        this.socket.on("playerx", (xev: PlayerX) => {
+        /*this.socket.on("playerx", (xev: PlayerX) => {
             console.log("xev", xev);
             this.x = xev.newX;
         });
@@ -70,6 +80,17 @@ export class Player extends SocketConnection {
         this.socket.on("playery", (yev: PlayerY) => {
             console.log("yev", yev);
             this.y = yev.newY;
+        }); */
+
+        this.socket.on("posupdate", (pos: PositionUpdate) => {
+            console.log("POS", pos);
+            this.x_ = pos.x;
+            this.y_ = pos.y;
+            this.parent.emit("posupdate", {
+                id: pos.id,
+                x: pos.x,
+                y: pos.y
+            });
         });
     }
 }

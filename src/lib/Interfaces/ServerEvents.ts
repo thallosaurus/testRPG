@@ -18,6 +18,10 @@ export interface PlayerJoinEvent {
     y: number; */
 }
 
+export interface ClientJoinEvent extends PlayerJoinEvent {
+
+}
+
 export interface NewPlayerEvent extends PlayerJoinEvent{
     x: number;
     y: number;

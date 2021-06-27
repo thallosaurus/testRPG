@@ -1,16 +1,20 @@
+import { Client } from "socket.io/dist/client";
 import { MultiplayerClient } from "../Client/SocketClient";
 import { MapDrawable } from "../Interfaces/MapDrawable";
 import { ImageLoader } from "../Interfaces/ResourceLoader";
-import { BoardUpdate, KillEvent, LevelChangeEvent, NewPlayerEvent, PlayerJoinEvent, UpdateEvent } from "../Interfaces/ServerEvents";
+import { BoardUpdate, KillEvent, LevelChangeEvent, NewPlayerEvent, PlayerJoinEvent, PositionUpdate, UpdateEvent } from "../Interfaces/ServerEvents";
 import { GameMap } from "../Map/GameMap";
 import { Character, PlayerDirection } from "../Map/MapObjects/Character";
 import { Player } from "../Server/Player";
+import { MapUtils } from "../Utilities";
+import { AnimationController } from "./AnimationController";
 import { Mappable, SubMappable, WorldController } from "./WorldController";
 
 export class CharacterController implements SubMappable, ImageLoader {
 
     // private ownPlayer!: Character;
-    client: MultiplayerClient.Client = new MultiplayerClient.Client("ws://localhost:4000");
+    client: MultiplayerClient.Client = new MultiplayerClient.Client();
+    parent!: WorldController;
     // private ownPlayerId: string = "";
 
     getById(id: string): Character | null {
@@ -64,8 +68,6 @@ export class CharacterController implements SubMappable, ImageLoader {
     private characters: Array<Character> = [];
 
     constructor() {
-        //this.characters.push(new Character(3, 3));
-        // this.client.join();
         this.client.io.on("levelchange", async (msg: LevelChangeEvent) => {
             console.log(msg);
             let lvl = await GameMap.getLevel(msg.level);
@@ -75,37 +77,72 @@ export class CharacterController implements SubMappable, ImageLoader {
 
         this.client.io.on("newplayer", (data: NewPlayerEvent) => {
             // console.log(data);
-            console.log("Received data newplayer", data);
-            /*             character.resolveResource();
-                        // console.log("d", data);
-                        if (data.id === MultiplayerClient.Client.id) {
-                            console.log("Joining as normal Character");
-                            this.ownPlayerId = data.id;
-                        }
-                        this.characters.push(character); */
-            if (data.id === MultiplayerClient.Client.id) {
-                WorldController.x_ = data.x;
-                WorldController.y_ = data.y;
-            }
-            let character = new Character(data.id, data.x, data.y);
-            character.resolveResource();
+            let int = setInterval(() => {
+                // alert("Received data newplayer, own id: " + MultiplayerClient.Client.id);
+                if (data.id === MultiplayerClient.Client.id) {
+                    WorldController.x_ = data.x;
+                    WorldController.y_ = data.y;
+                }
+                let character = new Character(data.id, data.x, data.y);
+                character.resolveResource();
 
-            // console.log("client id", MultiplayerClient.Client.id);
-            /*             if (data.id === MultiplayerClient.Client.id) {
-                            console.log("id");
-                            this.ownPlayerId = data.id;
-                        } */
-
-            this.characters.push(character);
-            // console.log(this.characters);
+                this.characters.push(character);
+                clearInterval(int);
+            }, 100);
         });
 
-        this.client.io.on("updateEvent", (data: UpdateEvent) => {
-            this.getById(data.id)?.setXYDiff(data.x, data.y);
-            if (this.getById(data.id) !== null) {
+        this.client.io.on("posupdate", (data: UpdateEvent) => {
+            let c = this.getById(data.id);
+            if (c) {
+                let diff = MapUtils.getDifference(data.x, data.y, c.x, c.y);
 
-                this.getById(data.id)!.updatePending = false;
+                console.log("Difference", diff, data);
+
+                if (diff.y !== 0) {
+                    // alert("y");
+                    if (diff.y === -1) {
+                        // console.log("y-up");
+                        // if (AnimationController)
+                        if (data.id === MultiplayerClient.Client.id) {
+                            // AnimationController.scheduleMapMoveAnimation(this.parent, "y", true, 1);
+                        } else {
+                            // AnimationController.scheduleMapMoveAnimation(c, "y", true, 1);
+                        }
+                    } else {
+                        // console.log("y-down");
+                        
+                        if (data.id === MultiplayerClient.Client.id) {
+                            // AnimationController.scheduleMapMoveAnimation(this.parent, "y", false, 1);
+                        } else {
+                            // AnimationController.scheduleMapMoveAnimation(c, "y", false, 1);
+                        }
+                    }
+                    //it is a y manipulation
+                    // AnimationController.scheduleMapMoveAnimation(c, "y", diff.x > 0);
+                    // if (data.id === MultiplayerClient.Client.id) AnimationController.scheduleMapMoveAnimation(this.parent, "y", diff.x < 0);
+                } else {
+                    if (diff.x === -1) {
+                        // console.log("x-left");
+                    } else {
+                        // console.log("x-right");
+                    }
+                    //it is a x manipulation
+                    // AnimationController.scheduleMapMoveAnimation(c, "x", diff.y > 0);
+                    // if (data.id === MultiplayerClient.Client.id) AnimationController.scheduleMapMoveAnimation(this.parent, "x", diff.x < 0);
+                }
+                if (data.id === MultiplayerClient.Client.id) {
+                    WorldController.x_ += diff.x;
+                    WorldController.y_ += diff.y;
+                }
+                console.log("posupdate", data);
+                c.setX(data.x);
+                c.setY(data.y);
+
             }
+            /*             if (this.getById(data.id) !== null) {
+            
+                            this.getById(data.id)!.updatePending = false;
+                        } */
         });
 
         this.client.io.on("hello", (data: BoardUpdate) => {
@@ -113,17 +150,21 @@ export class CharacterController implements SubMappable, ImageLoader {
             for (let p of data.players) {
                 this.characters.push(new Character(p.id, p.x, p.y));
             }
-/*             data.players.forEach(e => {
-                console.log(e);
-                this.characters.push(new Character(e.id, e.x, e.y));
-                console.log("push", this.characters);
-            }); */
+            /*             data.players.forEach(e => {
+                            console.log(e);
+                            this.characters.push(new Character(e.id, e.x, e.y));
+                            console.log("push", this.characters);
+                        }); */
             /*             this.getById(data.id)?.setXYDiff(data.x, data.y);
                         if (this.getById(data.id) !== null) {
             
                             this.getById(data.id)!.updatePending = false;
                         } */
         });
+        /* 
+                this.client.io.on("posupdate", (data: PositionUpdate) => {
+                    console.log("posupdate", data);
+                }) */
 
         this.client.io.on("kill", (data: KillEvent) => {
             console.log("KILLED " + data.id);
@@ -138,22 +179,14 @@ export class CharacterController implements SubMappable, ImageLoader {
         this.resolveResource();
     }
 
+    setParent(wc: WorldController) {
+        this.parent = wc;
+    }
+
     resolveResource(): Promise<void> {
         // throw new Error("Method not implemented.");
         return new Promise<void>((res, rej) => {
-            let intervalId = setInterval(() => {
-                if (MultiplayerClient.Client.id === "") {
-                    console.log("own player is not assigned");
-                    // console.log(MultiplayerClient.Client.id);
-                    // return new Promise((res, rej) => res());
-                    return;
-                } else {
-                    // console.log(this.ownPlayerId);
-                    clearInterval(intervalId);
-                    this.ownPlayer!.resolveResource();
-                    res();
-                }
-            }, 1000);
+            res();
         });
     }
     unloadResource(): void {
@@ -161,24 +194,43 @@ export class CharacterController implements SubMappable, ImageLoader {
         this.ownPlayer!.unloadResource();
     }
 
-    /*     allCharsUp() {
-            this.characters.forEach(e => {
-                e.moveUp(1);
+    moveOwnUp() {
+        if (this.ownPlayer !== null) {
+            this.client.send<PositionUpdate>("posupdate", {
+                id: MultiplayerClient.Client.id,
+                x: this.ownPlayer.x,
+                y: this.ownPlayer.y - 1
             });
         }
-        allCharsDown() {
-            this.characters.forEach(e => {
-                e.moveDown(1);
-            });
-        }
-        allCharsLeft() {
-            this.characters.forEach(e => {
-                e.moveLeft(1);
-            });
-        }
-        allCharsRight() {
-            this.characters.forEach(e => {
-                e.moveRight(1);
-            }); */
+    }
 
+    moveOwnDown() {
+        if (this.ownPlayer !== null) {
+            this.client.send<PositionUpdate>("posupdate", {
+                id: MultiplayerClient.Client.id,
+                x: this.ownPlayer.x,
+                y: this.ownPlayer.y + 1
+            });
+        }
+    }
+
+    moveOwnLeft() {
+        if (this.ownPlayer !== null) {
+            this.client.send<PositionUpdate>("posupdate", {
+                id: MultiplayerClient.Client.id,
+                x: this.ownPlayer.x - 1,
+                y: this.ownPlayer.y
+            });
+        }
+    }
+
+    moveOwnRight() {
+        if (this.ownPlayer !== null) {
+            this.client.send<PositionUpdate>("posupdate", {
+                id: MultiplayerClient.Client.id,
+                x: this.ownPlayer.x + 1,
+                y: this.ownPlayer.y
+            });
+        }
+    }
 }

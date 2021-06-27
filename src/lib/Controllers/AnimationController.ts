@@ -16,11 +16,13 @@ export class AnimationController implements Drawable {
                 let frame = a.changes.shift();
                 switch (a.direction) {
                     case "x":
-                        a.element.setVisualOffsetX(frame! * (a.pos ? 1 : -1), Canvas.timestamp - a.timestamp);
+                        console.log(frame);
+                        a.element.setVisualOffsetX(frame! * (a.pos ? 1 : -1) - 64, Canvas.timestamp - a.timestamp);
                         break;
-
-                    case "y":
-                        a.element.setVisualOffsetY(frame! * (a.pos ? 1 : -1), Canvas.timestamp - a.timestamp);
+                        
+                        case "y":
+                        console.log(frame);
+                        a.element.setVisualOffsetY(frame! * (a.pos ? 1 : -1) - 64, Canvas.timestamp - a.timestamp);
                         break;
                 }
             } else {
@@ -36,27 +38,33 @@ export class AnimationController implements Drawable {
                         break;
                 }
 
-                if ('updatePending' in a.element) {
-                    (a.element as unknown as UpdatePending).updatePending = false;
+                // if ('updatePending' in a.element) {
+                    // a.element.hasA = false;
                     console.log("released element from pending");
-                }
-
+                    // }
+                
                 this.resetObject(a.element);
-                a.element.hasActiveEvent = false;
                 let index = AnimationController.animationQueue.indexOf(a);
                 AnimationController.animationQueue.splice(index);
             }
         }
+
+        // console.log(AnimationController.animationQueue);
     }
 
     resetObject(obj: any) {
         obj.setVisualOffsetY(0, 0);
         obj.setVisualOffsetX(0, 0);
+        obj.hasActiveEvent = false;
     }
 
     static scheduleMapMoveAnimation(vis: VisualOffset, direction: "x" | "y", pos: boolean, distance: number = 1) {
         //generate frames
-        let ch = this.generateFrameDiffsMapMovement(0, Math.floor(Canvas.targetFPS) / 2, distance);
+
+
+        //presend the new coords to the server
+        let ch = this.generateFrameDiffsMapMovement(1, Math.floor(Canvas.targetFPS) / 2, distance);
+        console.log("Changes", ch);
 
         vis.hasActiveEvent = true;
         this.animationQueue.push({
@@ -73,7 +81,8 @@ export class AnimationController implements Drawable {
         let b: number[] = [];
 
         for (let i = min; i < max * iterations; i++) {
-            b.push((1 / max * i) * 64);
+            b.push((1 / max * i) * 64
+            );
         }
 
         return b;

@@ -61,6 +61,8 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset, Update
         this.id = id;
         this.x = x;
         this.y = y;
+
+        console.log("Set " + id + " to ", x, y);
     }
     
     hasActiveEvent: boolean = false;
@@ -74,7 +76,7 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset, Update
     setVisualOffsetY(y: number, ts: number): void {
         this.setAnimationProgress(ts);
         // throw new Error("Method not implemented.");
-        this.visualYOffset = y;
+        this.visualYOffset = y - 64;
     }
     getVisualOffsetX(): number {
         // throw new Error("Method not implemented.");
@@ -87,43 +89,52 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset, Update
     finalizeX(pos: boolean, amount: number): void {
         // throw new Error("Method not implemented.");
         this.hasActiveEvent = false;
-        // this.x += (pos ? 1 : -1) * amount;
-        this.setXYDiff((pos ? 1 : -1) * amount, 0);
+        this.x += (pos ? 1 : -1) * amount;
+        // this.setX((pos ? 1 : -1) * amount);
         this.visualXOffset = 0;
-
+        
+        console.log(this.x);
         // console.log("asdfdghjkl", this.x);
     }
     finalizeY(pos: boolean, amount: number): void {
         // throw new Error("Method not implemented.");
         this.hasActiveEvent = false;
-        // this.y += (pos ? 1 : -1) * amount;
-        this.setXYDiff(0, (pos ? 1 : -1) * amount);
+        // console.log()
+        this.y += (pos ? 1 : -1) * amount;
+        // this.setY((pos ? 1 : -1) * amount);
         this.visualYOffset = 0; 
+
+        console.log(this.y);
     }
 
-    setXYDiff(x: number, y: number) {
-        this.x += x;
-        this.y += y;
+    setX(x: number) {
+        this.x = x;
+        // this.y = y;
+    }
+    setY(y: number) {
+        // this.x = x;
+        this.y = y;
     }
     
     moveUp(distance: number) {
         this.lookAt(PlayerDirection.UP);
-        AnimationController.scheduleMapMoveAnimation(this, "y", false, distance);
+        // AnimationController.scheduleMapMoveAnimation(this, "y", false, distance);
     }
     
     moveDown(distance: number) {
         this.lookAt(PlayerDirection.DOWN);
-        AnimationController.scheduleMapMoveAnimation(this, "y", true, distance);
+        // AnimationController.scheduleMapMoveAnimation(this, "y", true, distance);
     }
     
     moveLeft(distance: number) {
         this.lookAt(PlayerDirection.LEFT);
-        AnimationController.scheduleMapMoveAnimation(this, "x", false, distance);
+        // AnimationController.scheduleMapMoveAnimation(this, "x", false, distance);
     }
     
     moveRight(distance: number) {
         this.lookAt(PlayerDirection.RIGHT);
-        AnimationController.scheduleMapMoveAnimation(this, "x", true, distance);
+        // AnimationController.scheduleMapMoveAnimation(this, "x", true, distance);
+
     }
 
     static playDingSound() {

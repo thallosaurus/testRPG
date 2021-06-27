@@ -3,7 +3,7 @@ const path = require('path');
 const serverConfig = {
     target: 'node',
     entry: './src/lib/Server/ServerMain.ts',
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     context: __dirname,
     module: {
         rules: [{
@@ -23,7 +23,7 @@ const serverConfig = {
 
 const clientConfig = {
     entry: './src/module.ts',
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     context: __dirname,
     module: {
         rules: [{
