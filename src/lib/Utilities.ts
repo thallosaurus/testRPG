@@ -42,6 +42,23 @@ export namespace MapUtils {
             y: y1 - y2
         } as Vector2D;
     }
+    
+    export function delta(n1: number, n2: number): number {
+        return Math.abs(n1 - n2);
+    }
+
+    export function sign(n: number): number {
+        if (n === 0) return 1;
+        return Math.sign(n);
+    }
+
+    export function scale(val: number, min1:number, max1:number, min2: number, max2: number) {
+        return ((min2 - min1) / (max2 - max1)) * val;
+    }
+
+    export function scale2(val:number, x1: number, x2:number) {
+        return (x2 - x1) * val;
+    }
 
     export interface Vector2D {
         x: number;

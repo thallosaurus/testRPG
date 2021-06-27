@@ -8,15 +8,14 @@ import { VisualOffset } from "./Interfaces/VisualOffset";
 
 export class ObjectRegistry {
     static renderQueue: Drawable[] = [];
+    static interaction: boolean;
 
     static async resolveAllSprites() {
-        // throw new Error("Method not implemented.");
         for (let res of ObjectRegistry.renderQueue.filter(objectIsResourceLoader)) {
             await (res as unknown as ResourceLoader).resolveResource();
         }
     }
     static renderToContext(ctx: CanvasRenderingContext2D, ts: number) {
-        // throw new Error("Method not implemented.");
         for (let r of ObjectRegistry.renderQueue.filter(objectIsDrawable)) {
             r.redraw(ctx, ts);
             Canvas.DEBUG && r.redrawDbg?.(ctx, ts);
@@ -35,9 +34,12 @@ export class ObjectRegistry {
     }
 
     static onInputEvent(e: KeyboardEvent) {
+        console.log(e);
+        if (ObjectRegistry.interaction) return;
         this.renderQueue.filter(objectIsInputHandler).forEach(f => {
             (f as unknown as InputHandler).onKeyboardEvent(e);
         });
+
     }
 
     static onTouchEvent(e: TouchEvent) {
@@ -52,15 +54,15 @@ export class ObjectRegistry {
         });
     }
 
-/*     static passToSocketSubscriber(event: MessageEvent): void {
-        this.renderQueue
-        .filter(objectIsSocketSubscriber).
-        filter(e => {
-            return true; /* (e as unknown as SocketSubscriber).messageId *
-        }).forEach(s => {
-            (s as unknown as SocketSubscriber).onmessage(event);
-        });
-    } */
+    static enableInteraction() {
+        ObjectRegistry.interaction = false;
+        console.log("enabled interaction")
+    }
+    
+    static disableInteraction() {
+        ObjectRegistry.interaction = true;
+        console.log("disabled interaction")
+    }
 }
 
 function objectIsDrawable(obj: any): obj is Drawable {

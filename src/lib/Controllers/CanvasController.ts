@@ -129,7 +129,7 @@ export default class Canvas implements Drawable {
             }
         }); */
 
-        window.addEventListener("keyup", (e) => {
+/*         window.addEventListener("keyup", (e) => {
             switch (e.key) {
                 case "Shift":
                     // this.world.stopRunning();
@@ -142,7 +142,7 @@ export default class Canvas implements Drawable {
                     this.isMoving = false;
                     break;
             }
-        });
+        }); */
 
          Canvas.DEBUG && window.addEventListener("mousedown", (event) => {
             mouseStartX = event.clientX;

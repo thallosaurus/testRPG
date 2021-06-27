@@ -6,7 +6,7 @@ import { AudioController } from "./AudioController";
 import Canvas from "./CanvasController";
 
 export class MobileController implements Drawable, ImageLoader, InputHandler {
-    onKeyboardEvent(e: KeyboardEvent): void {
+    onKeyboardEvent(e: KeyboardEvent): Promise<void> {
         throw new Error("Method not implemented.");
     }
 
@@ -67,7 +67,6 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
     }
 
     resolveResource(): Promise<void> {
-        // throw new Error("Method not implemented.");
         return new Promise<void>((res, rej) => {
             fetch("/assets/controls/dpad.png")
                 .then(f => {
@@ -79,16 +78,16 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
                 });
 
             fetch("/assets/controls/unmute.png")
-            .then(f => {
-                return f.blob();
-            })
-            .then(blob => {
-                this.unmuteImageUrl = URL.createObjectURL(blob);
-                this.unmuteImage = new Image();
-                this.unmuteImage.src = this.unmuteImageUrl;
-            })
+                .then(f => {
+                    return f.blob();
+                })
+                .then(blob => {
+                    this.unmuteImageUrl = URL.createObjectURL(blob);
+                    this.unmuteImage = new Image();
+                    this.unmuteImage.src = this.unmuteImageUrl;
+                })
 
-                fetch("/assets/controls/a-button.png")
+            fetch("/assets/controls/a-button.png")
                 .then((e) => {
                     return e.blob();
                 }).then(blob => {
@@ -119,11 +118,10 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
     }
 
     redrawDbg(ctx: CanvasRenderingContext2D, timestamp: number) {
-        // console.log("dbg");
         for (let e of MobileController.touchEvents) {
             ctx.fillStyle = "rgba(255,0,0,0.25)";
             ctx.fillRect(e.x, e.y, e.width, e.height);
-        }        // throw new Error("Method not implemented.");
+        }
     }
 
     public updateTouchEvents() {
@@ -131,7 +129,7 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
         this.addTouchHandler(this.safeAreaLeft + this.dpadX + this.dpadWidth / 3, this.dpadY + this.dpadHeight / 3 * 2 - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadDown.bind(this));    //down
         this.addTouchHandler(this.safeAreaLeft + this.dpadX + this.dpadWidth / 3 * 2, this.dpadY + this.dpadHeight / 3 - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadRight.bind(this));    //right
         this.addTouchHandler(this.safeAreaLeft + this.dpadX, this.dpadY + this.dpadHeight / 3 - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadLeft.bind(this));    //left
-        
+
         this.addTouchHandler(Canvas.width - this.safeAreaRight - 75, Canvas.height - this.safeAreaBottom - 150, 60, 60, this.aButton.bind(this));
         this.addTouchHandler(Canvas.width / 2 - 30, this.safeAreaTop, 60, 60, () => AudioController.activateAudioContext());
     }
@@ -141,7 +139,6 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
     }
 
     private addTouchHandler(x: number, y: number, w: number, h: number, callback: () => void) {
-        // if (MobileController.touchEvents.length == 0) this.updateTouchEvents();
         MobileController.touchEvents.push({
             x: x,
             y: y,
@@ -151,35 +148,23 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
         });
     }
     private dpadUp() {
-        // console.log("up");
-        /*         while (this.mouseeventX !== null && this.mouseeventY !== null) {
-                    alert("oh");
-                } */
-        // ObjectRegistry.player.moveUp();
-        window.dispatchEvent(new KeyboardEvent("keydown", {key: "w"}));
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "w" }));
     }
 
     private dpadDown() {
-        // console.log("down");
-        // ObjectRegistry.player.moveDown();
-        // alert("down");
-        window.dispatchEvent(new KeyboardEvent("keydown", {key: "s"}));
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "s" }));
     }
-    
+
     private dpadLeft() {
-        // alert("left");
-        // ObjectRegistry.player.moveLeft();
-        window.dispatchEvent(new KeyboardEvent("keydown", {key: "a"}));
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "a" }));
     }
-    
+
     private dpadRight() {
-        // console.log("right");
-        // ObjectRegistry.player.moveRight();
-        window.dispatchEvent(new KeyboardEvent("keydown", {key: "d"}));
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "d" }));
     }
 
     private aButton() {
-        window.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter"}))
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }))
     }
 }
 

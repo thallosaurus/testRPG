@@ -46,12 +46,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
     return WorldController.charCont;
   }
 
-  /*   get map(): Mappable | null {
-      return this.currentMap;
-    } */
-
   setVisualOffsetX(x: number, ts: number): void {
-    // console.log(x, ts);
     this.charCont.setAnimationProgressOfPlayer(ts);
     this.charCont.ownPlayer!!.visualXOffset = x * -1;
     this.visualXOffset = x;
@@ -73,121 +68,86 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   }
 
   finalizeX(pos: boolean, distance: number): void {
-    WorldController.x_ += (pos ? -1 : 1) * distance;
-    // this.charCont.ownPlayer!!.x = this.x;
+    WorldController.x_ = (pos ? -1 : 1) * distance;
     this.charCont.setAnimationProgressOfPlayer(0);
-
-    this.charCont.client.send<PlayerX>("playerx", {
-      newX: (pos ? -1 : 1) * distance
-    }).then(console.log);
   }
   finalizeY(pos: boolean, distance: number): void {
-    WorldController.y_ += (pos ? -1 : 1) * distance;
-    // this.charCont.ownPlayer!!.y = this.y;
+    WorldController.y_ = (pos ? -1 : 1) * distance;
     this.charCont.setAnimationProgressOfPlayer(0);
-
-    this.charCont.client.send<PlayerY>("playery", {
-      newY: (pos ? -1 : 1) * distance
-    }).then(console.log);
   }
 
-  onKeyboardEvent(e: KeyboardEvent): void {
-    //console.log(e);
-    if (this.hasActiveEvent) return;
+  onKeyboardEvent(e: KeyboardEvent): Promise<void> {
 
-    // console.log(e);
+    return new Promise((res, rej) => {
+      switch (e.key) {
+        case "w":
+          this.movePlayerUp();
+          break;
 
-    switch (e.key) {
-      case "w":
-        this.movePlayerUp();
-        break;
+        case "a":
+          this.movePlayerLeft();
+          break;
 
-      case "a":
-        this.movePlayerLeft();
-        break;
+        case "s":
+          this.movePlayerDown();
+          break;
 
-      case "s":
-        this.movePlayerDown();
-        break;
+        case "d":
+          this.movePlayerRight();
+          break;
 
-      case "d":
-        this.movePlayerRight();
-        break;
+        case "Enter":
+          Character.playDingSound();
+          break;
 
-      case "Enter":
-        //alert("Hello from worldcontroller");
-        Character.playDingSound();
-        break;
+        case "i":
+          AudioController.activateAudioContext();
+          break;
 
-      case "i":
-        AudioController.activateAudioContext();
-        break;
+        case "u":
+          console.log("u");
+          WorldController.map!.unloadResource();
+          break;
 
-      /*       case "ArrowUp":
-              this.charCont.allCharsUp();
-              break;
-            case "ArrowLeft":
-              this.charCont.allCharsLeft();
-              break;
-      
-            case "ArrowDown":
-              this.charCont.allCharsDown();
-              break;
-            case "ArrowRight":
-              this.charCont.allCharsRight();
-              break; */
-
-      case "u":
-        console.log("u");
-        WorldController.map!.unloadResource();
-        break;
-    }
+      }
+      res();
+    });
   }
 
   public movePlayerUp() {
-    this.charCont.playerLookAt(PlayerDirection.UP);
     if (this.check(WorldController.map!.getMapDataXY(this.x, this.y - 1))
       && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y - 1))) {
-      // AnimationController.scheduleMapMoveAnimation(this, "y", true);
       this.charCont.moveOwnUp();
-      
     }
   }
-  
+
   public movePlayerDown() {
-    this.charCont.playerLookAt(PlayerDirection.DOWN);
-    if (this.check(WorldController.map!.getMapDataXY(this.x, this.y + 1)) && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y + 1))) {
-      // AnimationController.scheduleMapMoveAnimation(this, "y", false);
+    if (this.check(WorldController.map!.getMapDataXY(this.x, this.y + 1))
+      && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y + 1))) {
       this.charCont.moveOwnDown();
     }
   }
 
   public movePlayerLeft() {
-    this.charCont.playerLookAt(PlayerDirection.LEFT);
-    if (this.check(WorldController.map!.getMapDataXY(this.x - 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x - 1, this.y))) {
-      // AnimationController.scheduleMapMoveAnimation(this, "x", true);
+    if (this.check(WorldController.map!.getMapDataXY(this.x - 1, this.y))
+      && this.checkNPC(this.charCont.getMapDataXY(this.x - 1, this.y))) {
       this.charCont.moveOwnLeft();
     }
   }
-  
+
   public movePlayerRight() {
-    this.charCont.playerLookAt(PlayerDirection.RIGHT);
-    if (this.check(WorldController.map!.getMapDataXY(this.x + 1, this.y)) && this.checkNPC(this.charCont.getMapDataXY(this.x + 1, this.y)))
-    {
-      // AnimationController.scheduleMapMoveAnimation(this, "x", false);
-      // this.charCont.
+    if (this.check(WorldController.map!.getMapDataXY(this.x + 1, this.y))
+      && this.checkNPC(this.charCont.getMapDataXY(this.x + 1, this.y))) {
       this.charCont.moveOwnRight();
     }
   }
 
   private checkNPC(o: MapDrawable | null): boolean {
-    // console.log(o);
     if (o === null) return true;
     return false;
   }
 
   private check(o: Array<MapDrawable | null>): boolean {
-    // console.log(o);
     if (o[0] === null) return false;
     return true;
   }
@@ -226,16 +186,10 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
           let char = this.charCont.getMapDataXY(x + this.x - Math.floor(this.tilesAvailableX / 2), y + this.y - Math.floor(this.tilesAvailableY / 2));
 
           if (char !== null) {
-            if ((char as Character).id === MultiplayerClient.Client.id) {
-              // console.log((char as Character).id === MultiplayerClient.Client.id);
-              // return;
-            };
             char.drawAt(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
           }
         }
       }
-
-      // this.charCont.drawPlayer(ctx, Math.floor(this.tilesAvailableX / 2) * this.tileWidth + this.tileWidth / 2, Math.floor(this.tilesAvailableY / 2) * this.tileHeight + this.tileHeight / 2, this.tileWidth, this.tileHeight);
     }
   }
 
@@ -249,8 +203,6 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
             mapdata?.drawDbg?.(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
 
           }
-          let char = this.charCont.getMapDataXY(x + this.x - Math.floor(this.tilesAvailableX / 2), y + this.y - Math.floor(this.tilesAvailableY / 2));
-          // char?.drawAt(ctx, timestamp, x * this.tileWidth + this.getVisualOffsetX(), y * this.tileHeight + this.getVisualOffsetY(), this.tileWidth, this.tileHeight);
         }
       }
     }

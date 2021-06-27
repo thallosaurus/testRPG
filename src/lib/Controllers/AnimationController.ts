@@ -1,7 +1,10 @@
 import { Drawable } from "../Interfaces/Drawable";
 import { UpdatePending } from "../Interfaces/UpdatePending";
 import { VisualOffset } from "../Interfaces/VisualOffset";
+import { PlayerDirection } from "../Map/MapObjects/Character";
+import { ObjectRegistry } from "../ObjectRegistry";
 import Canvas from "./CanvasController";
+import { WorldController } from "./WorldController";
 
 export class AnimationController implements Drawable {
     static animationQueue: Array<AnimationObject> = [];
@@ -14,86 +17,131 @@ export class AnimationController implements Drawable {
         for (let a of AnimationController.animationQueue) {
             if (a.changes.length !== 0) {
                 let frame = a.changes.shift();
-                switch (a.direction) {
+                if (frame !== null) switch (a.direction) {
                     case "x":
-                        console.log(frame);
-                        a.element.setVisualOffsetX(frame! * (a.pos ? 1 : -1) - 64, Canvas.timestamp - a.timestamp);
-                        break;
-                        
-                        case "y":
-                        console.log(frame);
-                        a.element.setVisualOffsetY(frame! * (a.pos ? 1 : -1) - 64, Canvas.timestamp - a.timestamp);
-                        break;
-                }
-            } else {
-                //end of animation
-                switch (a.direction) {
-                    case "x":
-                        // console.log("finalized x", a);
-                        a.element.finalizeX(a.pos, a.iterations);
+                        a.element.setVisualOffsetX(frame!, Canvas.timestamp - a.timestamp);
                         break;
 
                     case "y":
-                        a.element.finalizeY(a.pos, a.iterations);
+
+                        a.element.setVisualOffsetY(frame! , Canvas.timestamp - a.timestamp);
                         break;
                 }
-
-                // if ('updatePending' in a.element) {
-                    // a.element.hasA = false;
-                    console.log("released element from pending");
-                    // }
-                
-                this.resetObject(a.element);
+            } else {
+                a.changes = [];
+                let o = a.element;
+                this.resetObject(o);
+                if (a.element instanceof WorldController) {
+                    ObjectRegistry.enableInteraction();
+                    console.log(a.element);
+                }
                 let index = AnimationController.animationQueue.indexOf(a);
-                AnimationController.animationQueue.splice(index);
+                AnimationController.animationQueue.splice(index, 1);
             }
         }
-
-        // console.log(AnimationController.animationQueue);
     }
-
-    resetObject(obj: any) {
+    
+    resetObject(obj: VisualOffset) {
         obj.setVisualOffsetY(0, 0);
         obj.setVisualOffsetX(0, 0);
-        obj.hasActiveEvent = false;
     }
 
-    static scheduleMapMoveAnimation(vis: VisualOffset, direction: "x" | "y", pos: boolean, distance: number = 1) {
-        //generate frames
-
-
-        //presend the new coords to the server
-        let ch = this.generateFrameDiffsMapMovement(1, Math.floor(Canvas.targetFPS) / 2, distance);
-        console.log("Changes", ch);
-
-        vis.hasActiveEvent = true;
-        this.animationQueue.push({
+    static scheduleMapMoveAnimation(vis: VisualOffset, direction: PlayerDirection, count: number = 1) {
+        let ticket = ({
             element: vis,
-            changes: ch,
-            direction: direction,
-            pos: pos,
+            changes: [0,0,0,0],
+            direction: "x",
             timestamp: this.timestamp,
-            iterations: distance
+            iterations: count
         });
-    }
 
-    static generateFrameDiffsMapMovement(min: number, max: number, iterations = 1) {
-        let b: number[] = [];
+        let frame:Array<number> = [];
+        switch (direction) {
+            case PlayerDirection.LEFT:
+                frame = this.createPosFrames(count);
+                ticket.changes = frame;
+                ticket.direction = "x";
+            break;
 
-        for (let i = min; i < max * iterations; i++) {
-            b.push((1 / max * i) * 64
-            );
+            case PlayerDirection.RIGHT:
+                frame = this.createNegFrames(count);
+                ticket.changes = frame;
+                ticket.direction = "x";
+            break;
+
+            case PlayerDirection.UP:
+                frame = this.createPosFrames(count);
+                ticket.changes = frame;
+                ticket.direction = "y";
+                break;
+
+            case PlayerDirection.DOWN:
+                frame = this.createNegFrames(count);
+                ticket.changes = frame;
+                ticket.direction = "y";
+            break;
         }
 
-        return b;
+        this.animationQueue.push(ticket);
+    }
+
+    /**
+     * @deprecated
+     * @param distance 
+     * @param direction 
+     * @param count 
+     * @returns 
+     */
+    static generateFrameDiffsMapMovement(distance: number, direction: PlayerDirection, count: number) {
+        //distance => map tiles * width/height
+        /*         let b: number[] = [];
+        
+                for (let i = min; i < max * iterations; i++) {
+                    b.push((1 / max * i) * 64
+                    );
+                }
+        
+                return b; */
+
+/*         let delta = MapUtils.delta(bis, von);
+        console.log(delta);
+
+        let duration = fc * repeat;
+
+        
+        for (let i = bis; i < duration; i++) {
+            // frame.push(MapUtils.scale2(i, ));
+            let m = (bis / von) * i;
+            frame.push(m);
+            // frame.push(i);
+        } */
+    }
+
+    static createPosFrames(count: number, distance: number = 64) {
+        let frames = [];
+        let targetFrames = Canvas.targetFPS;
+        let inc = 64 / targetFrames;
+        for (let i = -64; i < 0; i += inc) {
+            frames.push(i);
+        }
+        return frames;
+    }
+
+    static createNegFrames(count: number, distance: number = 64) {
+        let frames = [];
+        let targetFrames = Canvas.targetFPS;
+        let inc = 64 / targetFrames;
+        for (let i = 64; i > 0; i -= inc) {
+            frames.push(i);
+        }
+        return frames;
     }
 }
 
 interface AnimationObject {
     element: VisualOffset;
     changes: number[];
-    direction: "x" | "y";
-    pos: boolean;
+    direction: string;
     timestamp: number;
     iterations: number;
 }

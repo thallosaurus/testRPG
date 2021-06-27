@@ -1,4 +1,7 @@
 export interface VisualOffset {
+    /**
+     * @deprecated
+     */
     hasActiveEvent: boolean;
     setVisualOffsetX(x: number, ts: number):void;
     setVisualOffsetY(y: number, ts: number):void;

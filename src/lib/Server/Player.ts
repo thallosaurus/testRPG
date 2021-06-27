@@ -1,7 +1,6 @@
 import { Socket } from "socket.io";
 import { KillEvent, LevelChangeEvent, PlayerX, PlayerY, PositionUpdate } from "../Interfaces/ServerEvents";
 import { MultiplayerServer } from "./ServerMain";
-//import { MultiplayerServer } from "./ServerMain";
 import { SocketConnection } from "./SocketConnection";
 
 export class Player extends SocketConnection {
@@ -12,7 +11,6 @@ export class Player extends SocketConnection {
     parent: MultiplayerServer.ServerMain;
 
     set level(s: string) {
-        //check if the level is valid
         this.level_ = s;
         this.socket.emit("levelchange", {
             level: s
@@ -21,11 +19,6 @@ export class Player extends SocketConnection {
 
     set x(x: number) {
         this.x_ += x;
-/*         this.sendUpdate({
-            id: this.id,
-            x: x,
-            y: 0
-        }); */
         console.log(x, this.x_);
         
     }
@@ -41,11 +34,6 @@ export class Player extends SocketConnection {
     
     set y(y: number) {
         this.y_ += y;
-/*         this.sendUpdate({
-            id: this.id,
-            x: 0,
-            y: y
-        }); */
         console.log(y, this.y_);
     }
 
@@ -54,8 +42,6 @@ export class Player extends SocketConnection {
         this.parent = parent;
         this.id = socket.id;
         console.log("socket constructor");
-/*         this.x_ = 0;
-        this.y_ = 0; */
         this.level = "/assets/levels/room0.json";
     }
 
@@ -71,16 +57,6 @@ export class Player extends SocketConnection {
             console.log("lev" + lev);
             this.level = lev.level;
         });
-
-        /*this.socket.on("playerx", (xev: PlayerX) => {
-            console.log("xev", xev);
-            this.x = xev.newX;
-        });
-        
-        this.socket.on("playery", (yev: PlayerY) => {
-            console.log("yev", yev);
-            this.y = yev.newY;
-        }); */
 
         this.socket.on("posupdate", (pos: PositionUpdate) => {
             console.log("POS", pos);
