@@ -36,6 +36,13 @@ export namespace MapUtils {
         return u.get(param);
     }
 
+    export function getDifference(x1:number, y1:number, x2:number, y2:number): Vector2D {
+        return {
+            x: x1 - x2,
+            y: y1 - y2
+        } as Vector2D;
+    }
+
     export interface Vector2D {
         x: number;
         y: number;

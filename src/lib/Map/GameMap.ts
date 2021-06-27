@@ -72,7 +72,7 @@ export class GameMap implements Mappable, TiledJSONMap, ImageLoader {
 
     static getLevel(filename: string): Promise<GameMap> {
         return new Promise<GameMap>((res, rej) => {
-            fetch("/assets/levels/" + filename).then(e => {
+            fetch(filename).then(e => {
                 return e.json();
             }).then(f => {
                 res(new GameMap(f));

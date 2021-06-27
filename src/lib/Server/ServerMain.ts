@@ -2,6 +2,8 @@ import { Server, Socket } from 'socket.io';
 import http from 'http';
 import { Player } from './Player';
 import express from 'express';
+import { BoardUpdate, KillEvent, NewPlayerEvent, PositionUpdate, UpdateEvent } from '../Interfaces/ServerEvents';
+import { threadId } from 'worker_threads';
 
 export namespace MultiplayerServer {
     const WEBMANIFEST = {
@@ -26,6 +28,8 @@ export namespace MultiplayerServer {
         private readonly io: Server;
         private readonly port: number = 4000;
         private readonly expressApp: express.Application;
+        private connections: Array<Player> = [];
+
         constructor() {
             this.expressApp = express();
             this.http = http.createServer(this.expressApp);
@@ -41,9 +45,61 @@ export namespace MultiplayerServer {
 
         private setupSocket(io: Server) {
             io.on("connection", (socket: Socket) => {
-                socket.on("playerjoin", () => {
-                    new Player(socket);
+                console.log("Someone connected");
+                socket.on("playerjoin", (msg: any) => {
+                    console.log("Player Joined");
+                    let data = {
+                        id: socket.id,
+                        x: 4,
+                        y: 4
+                    } as NewPlayerEvent;
+                    
+                    this.connections.forEach((e) => {
+                        e.socket.emit("newplayer", data);
+                    });
+                    
+                    
+
+                    let buf: PositionUpdate[] = [];
+                    this.connections.forEach((e) => {
+                        console.log(e.x, e.y);
+                        buf.push({
+                            id: e.id,
+                            x: e.x_,
+                            y: e.y_
+                        });
+                    });
+                    socket.emit("playerjoin", data);
+                    
+                    console.log("bbbb", buf);
+                    socket.emit("hello", {
+                        players: [
+                            {
+                                id: "",
+                                x: 5,
+                                y: 5
+                            } as PositionUpdate
+                        ]
+                    });
+                    
+                    // socket.emit("hello", JSON.stringify(this.connections));
+                    
+/*                     socket.emit("boardupdate", {
+                        players: this.connections
+                    }); */
                 });
+                let player = new Player(socket, this);
+                this.connections.push(player);
+            });
+        }
+        
+        public kill(p: Player) {
+            this.connections = this.connections.filter(e => {
+                return e !== p;
+            });
+
+            this.connections.forEach(e => {
+                e.socket.emit("kill", {id: p.id} as KillEvent);
             });
         }
 
@@ -66,7 +122,7 @@ export namespace MultiplayerServer {
 
             this.expressApp.get("/", (req: express.Request, res: express.Response) => {
                 console.log(__dirname);
-                res.sendFile("./devassets/index.html", { root: __dirname + "/.."});
+                res.sendFile("./devassets/index.html", { root: __dirname + "/.." });
             });
 
             this.expressApp.get("/manifest.webmanifest", (req, res) => {

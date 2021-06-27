@@ -1,16 +1,25 @@
+import { Socket } from "dgram";
 import { MultiplayerClient } from "../../Client/SocketClient";
 import { AnimationController } from "../../Controllers/AnimationController";
 import { AudioController } from "../../Controllers/AudioController";
 import { MapDrawable } from "../../Interfaces/MapDrawable";
 import { ImageLoader } from "../../Interfaces/ResourceLoader";
+import { PlayerX } from "../../Interfaces/ServerEvents";
+import { UpdatePending } from "../../Interfaces/UpdatePending";
 import { VisualOffset } from "../../Interfaces/VisualOffset";
 import { MapUtils } from "../../Utilities";
 
-export class Character implements MapDrawable, ImageLoader, VisualOffset {
+export class Character implements MapDrawable, ImageLoader, VisualOffset, UpdatePending {
     static imageUrl:string | null = null;
     static image:HTMLImageElement | null = null;
-
+    
     static dingSound: ArrayBuffer;
+    
+    public x: number;
+    public y: number;
+    public id: string;
+    
+    updatePending: boolean = false;
 
     progress: number = 0;
     direction: PlayerDirection = PlayerDirection.DOWN;
@@ -38,8 +47,20 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset {
         this.direction = direction;
     }
     
-    constructor(x: number, y: number) {
+    constructor(id: string, x:number, y:number) {
         //super("wss://localhost:")
+        // client.io.on("playerx", (msg: PlayerX) => {
+        //     console.log(msg);
+        //     let diff = MapUtils.getDifference(this.x, this.y, msg.newX, 0);
+        //     console.log(diff);
+
+        //     //check if it is left right up or down then move there
+        //     // if ()
+        // });
+
+        this.id = id;
+        this.x = x;
+        this.y = y;
     }
     
     hasActiveEvent: boolean = false;
@@ -65,13 +86,24 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset {
     }
     finalizeX(pos: boolean, amount: number): void {
         // throw new Error("Method not implemented.");
+        this.hasActiveEvent = false;
+        // this.x += (pos ? 1 : -1) * amount;
+        this.setXYDiff((pos ? 1 : -1) * amount, 0);
         this.visualXOffset = 0;
-        this.x += (pos ? 1 : -1) * amount;
+
+        // console.log("asdfdghjkl", this.x);
     }
     finalizeY(pos: boolean, amount: number): void {
         // throw new Error("Method not implemented.");
-        this.visualYOffset = 0;
-        this.y += (pos ? 1 : -1) * amount;
+        this.hasActiveEvent = false;
+        // this.y += (pos ? 1 : -1) * amount;
+        this.setXYDiff(0, (pos ? 1 : -1) * amount);
+        this.visualYOffset = 0; 
+    }
+
+    setXYDiff(x: number, y: number) {
+        this.x += x;
+        this.y += y;
     }
     
     moveUp(distance: number) {
@@ -122,8 +154,6 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset {
     unloadResource(): void {
         // throw new Error("Method not implemented.");
     }
-    x: number = 0;
-    y: number = 0;
 }
 
 

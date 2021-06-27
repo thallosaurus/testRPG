@@ -11,23 +11,25 @@ export class SimpleTile implements MapDrawable {
     get spriteId() {
         return this.id;
     }
-    
+
     drawAt(ctx: CanvasRenderingContext2D, timestamp: number, x: number, y: number, w: number, h: number): void {
         // throw new Error("Method not implemented.");
         if (this.id != 0) {
             // if (GameMap.getResource()) {
             let coords = MapUtils.getXY(this.id, 30, 30);
-            ctx.drawImage(
-                GameMap.getResource()!,
-                coords.x * 32,
-                coords.y * 32,
-                32,
-                32,
-                x,
-                y,
-                w,
-                h
-            );
+            if (GameMap.getResource() !== null) {
+                ctx.drawImage(
+                    GameMap.getResource()!,
+                    coords.x * 32,
+                    coords.y * 32,
+                    32,
+                    32,
+                    x,
+                    y,
+                    w,
+                    h
+                );
+            }
             // }
         }
     }

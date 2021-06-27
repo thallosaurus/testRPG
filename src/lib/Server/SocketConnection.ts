@@ -1,8 +1,9 @@
 import { Socket } from "socket.io";
-import { PlayerJoinEvent } from "../Interfaces/ServerEvents";
+import { PlayerJoinEvent, UpdateEvent } from "../Interfaces/ServerEvents";
 
 export abstract class SocketConnection {
     static sockets: SocketConnection[] = [];
+    public id: string;
 
     readonly socket: Socket
     constructor(socket: Socket) {
@@ -10,6 +11,8 @@ export abstract class SocketConnection {
 
         this.socket = socket;
         this.setupSocket();
+
+        this.id = socket.id;
 
 //        let exclude: Array<SocketConnection> = [this]
         SocketConnection.sendToAllClients("playerjoin", {
@@ -21,13 +24,25 @@ export abstract class SocketConnection {
         this.socket.on("disconnect", this.kill.bind(this));
     }
 
-    private kill() {
+    public kill() {
         SocketConnection.sockets = SocketConnection.sockets.filter(e => e !== this);
+        // this.sockets
+    }
+
+    public sendUpdate(u: any) {
+        let obj = {
+            from: this.id,
+            type: typeof u,
+            data: u
+        }
+
+        console.log(obj);
+        SocketConnection.sendToAllClients("updateEvent", u as UpdateEvent);
     }
 
     static sendToAllClients(tag: string, payload: any, exclude: Array<SocketConnection> | null = null) {
         this.sockets
-        .filter((e) => {return exclude?.indexOf(e) === -1 ?? true})
+        // .filter((e) => {return exclude?.indexOf(e) === -1 ?? true})
         .map(e => {
             e.socket.emit(tag, payload);
         });

@@ -1,11 +1,12 @@
 import { Drawable } from "../Interfaces/Drawable";
+import { UpdatePending } from "../Interfaces/UpdatePending";
 import { VisualOffset } from "../Interfaces/VisualOffset";
 import Canvas from "./CanvasController";
 
 export class AnimationController implements Drawable {
     static animationQueue: Array<AnimationObject> = [];
 
-    static get timestamp() : number{
+    static get timestamp(): number {
         return Canvas.timestamp;
     }
 
@@ -23,23 +24,34 @@ export class AnimationController implements Drawable {
                         break;
                 }
             } else {
+                //end of animation
                 switch (a.direction) {
                     case "x":
+                        // console.log("finalized x", a);
                         a.element.finalizeX(a.pos, a.iterations);
-                        a.element.setVisualOffsetX(0, 0);
                         break;
 
                     case "y":
                         a.element.finalizeY(a.pos, a.iterations);
-                        a.element.setVisualOffsetY(0, 0);
                         break;
                 }
 
+                if ('updatePending' in a.element) {
+                    (a.element as unknown as UpdatePending).updatePending = false;
+                    console.log("released element from pending");
+                }
+
+                this.resetObject(a.element);
                 a.element.hasActiveEvent = false;
                 let index = AnimationController.animationQueue.indexOf(a);
                 AnimationController.animationQueue.splice(index);
             }
         }
+    }
+
+    resetObject(obj: any) {
+        obj.setVisualOffsetY(0, 0);
+        obj.setVisualOffsetX(0, 0);
     }
 
     static scheduleMapMoveAnimation(vis: VisualOffset, direction: "x" | "y", pos: boolean, distance: number = 1) {
