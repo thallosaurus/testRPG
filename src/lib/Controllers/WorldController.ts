@@ -10,7 +10,7 @@ import { MapDrawable } from "../Interfaces/MapDrawable";
 import { CharacterController } from "./CharacterController";
 import { Character, PlayerDirection } from "../Map/MapObjects/Character";
 import { AudioController } from "./AudioController";
-import { PlayerX, PlayerY } from "../Interfaces/ServerEvents";
+import { LevelChangeEvent, PlayerX, PlayerY } from "../Interfaces/ServerEvents";
 import { MultiplayerClient } from "../Client/SocketClient";
 
 export class WorldController implements Drawable, VisualOffset, InputHandler {
@@ -109,8 +109,17 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
           WorldController.map!.unloadResource();
           break;
 
+        case "t":
+          this.teleport();
+          break;
       }
       res();
+    });
+  }
+
+  public teleport() {
+    this.charCont.client.send<LevelChangeEvent>("levelchange", {
+      level: "/assets/levels/unbenannt1.json"
     });
   }
 

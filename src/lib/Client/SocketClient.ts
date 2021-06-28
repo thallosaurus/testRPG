@@ -1,8 +1,5 @@
-import { exception, time } from 'console';
 import { io, Socket } from 'socket.io-client';
-import { PlayerJoinEvent, PlayerX, PlayerY } from '../Interfaces/ServerEvents';
-import { Player } from '../Server/Player';
-
+import { PlayerJoinEvent } from '../Interfaces/ServerEvents';
 export namespace MultiplayerClient {
     export class Client {
         private readonly socket: Socket;

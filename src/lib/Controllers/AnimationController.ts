@@ -85,41 +85,9 @@ export class AnimationController implements Drawable {
         this.animationQueue.push(ticket);
     }
 
-    /**
-     * @deprecated
-     * @param distance 
-     * @param direction 
-     * @param count 
-     * @returns 
-     */
-    static generateFrameDiffsMapMovement(distance: number, direction: PlayerDirection, count: number) {
-        //distance => map tiles * width/height
-        /*         let b: number[] = [];
-        
-                for (let i = min; i < max * iterations; i++) {
-                    b.push((1 / max * i) * 64
-                    );
-                }
-        
-                return b; */
-
-/*         let delta = MapUtils.delta(bis, von);
-        console.log(delta);
-
-        let duration = fc * repeat;
-
-        
-        for (let i = bis; i < duration; i++) {
-            // frame.push(MapUtils.scale2(i, ));
-            let m = (bis / von) * i;
-            frame.push(m);
-            // frame.push(i);
-        } */
-    }
-
     static createPosFrames(count: number, distance: number = 64) {
         let frames = [];
-        let targetFrames = Canvas.targetFPS;
+        let targetFrames = Canvas.targetFPS / 3;
         let inc = 64 / targetFrames;
         for (let i = -64; i < 0; i += inc) {
             frames.push(i);
@@ -129,7 +97,7 @@ export class AnimationController implements Drawable {
 
     static createNegFrames(count: number, distance: number = 64) {
         let frames = [];
-        let targetFrames = Canvas.targetFPS;
+        let targetFrames = Canvas.targetFPS / 3;
         let inc = 64 / targetFrames;
         for (let i = 64; i > 0; i -= inc) {
             frames.push(i);

@@ -2,7 +2,7 @@ import { Server, Socket } from 'socket.io';
 import http from 'http';
 import { Player } from './Player';
 import express from 'express';
-import { BoardUpdate, ClientJoinEvent, KillEvent, NewPlayerEvent, PositionUpdate, UpdateEvent } from '../Interfaces/ServerEvents';
+import { ClientJoinEvent, KillEvent, NewPlayerEvent, PositionUpdate } from '../Interfaces/ServerEvents';
 import { threadId } from 'worker_threads';
 
 export namespace MultiplayerServer {
@@ -83,32 +83,6 @@ export namespace MultiplayerServer {
                         players: buf
                     });
                 });
-
-
-                /*
-                let buf: PositionUpdate[] = [];
-                this.connections.forEach((e) => {
-                    console.log("buffer", e.x, e.y);
-                    buf.push({
-                        id: e.id,
-                        x: e.x_,
-                        y: e.y_
-                    });
-                });
-                // socket.emit("playerjoin", data);
-                
-                console.log("bbbb", buf);
-                socket.emit("hello", {
-                    players: buf
-                    ]
-                });
-                
-                // socket.emit("hello", JSON.stringify(this.connections));
-                
-/*                     socket.emit("boardupdate", {
-                    players: this.connections
-                }); *
-            }); */
             });
         }
 
