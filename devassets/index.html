@@ -4,8 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
     <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="viewport" content="initial-scale=1, viewport-fit=cover, width=device-width"></meta>
+    <meta name="apple-mobile-web-app-capable" content="yes"></meta>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></meta>
+    <script data-consolejs-channel="b9a1a0c9-3b68-d898-c1e4-502fe9f62cdc" src="https://remotejs.com/agent/agent.js"></script>
 
     <title>Document</title>
     <style>
@@ -30,10 +34,15 @@
             touch-action: none;
             pointer-events: none;
         }
+
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sar: env(safe-area-inset-right);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+        }
     </style>
-    <script src='js/main.js' type='module'></script>
-    <script data-consolejs-channel="bbb84332-720f-4945-befe-b0bbbe60b06c"
-        src="https://remotejs.com/agent/agent.js"></script>
+    <script src='main.js' type='module'></script>
 </head>
 
 <body>

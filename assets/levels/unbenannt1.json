@@ -46,7 +46,7 @@
                         {
                          "name":"destination",
                          "type":"string",
-                         "value":"level0.json"
+                         "value":"room0.json"
                         }],
                  "rotation":0,
                  "type":"",
