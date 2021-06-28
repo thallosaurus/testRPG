@@ -12,11 +12,11 @@ export namespace MultiplayerServer {
         "name": "schrottimon",
         "short_name": "schrottimon",
         "description": "schrottimon",
-        "icons": [{
+        "icons": {
             "src": "/assets/icon_512.png",
             "type": "image/png",
             "sizes": "512x512"
-        }],
+        },
         "background_color": "#000000",
         "theme_color": "#000000",
         "display": "standalone",
