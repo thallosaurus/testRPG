@@ -166,6 +166,12 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
     private aButton() {
         window.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }))
     }
+    
+    private bButton()
+    {
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }))
+
+    }
 }
 
 interface TouchEventDpad {

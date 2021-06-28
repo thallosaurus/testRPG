@@ -34,8 +34,8 @@ export class ObjectRegistry {
     }
 
     static onInputEvent(e: KeyboardEvent) {
-        console.log(e);
         if (ObjectRegistry.interaction) return;
+        console.log(e);
         this.renderQueue.filter(objectIsInputHandler).forEach(f => {
             (f as unknown as InputHandler).onKeyboardEvent(e);
         });

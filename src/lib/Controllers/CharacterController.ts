@@ -1,7 +1,7 @@
 import { MultiplayerClient } from "../Client/SocketClient";
 import { MapDrawable } from "../Interfaces/MapDrawable";
 import { ImageLoader } from "../Interfaces/ResourceLoader";
-import { BoardUpdate, KillEvent, LevelChangeEvent, NewPlayerEvent, PlayerJoinEvent, PositionUpdate, UpdateEvent } from "../Interfaces/ServerEvents";
+import { BoardUpdate, KillEvent, LevelChangeEvent, NewPlayerEvent, PositionUpdate, UpdateEvent, ErrorEvent } from "../Interfaces/ServerEvents";
 import { GameMap } from "../Map/GameMap";
 import { Character, PlayerDirection } from "../Map/MapObjects/Character";
 import { ObjectRegistry } from "../ObjectRegistry";
@@ -48,6 +48,11 @@ export class CharacterController implements SubMappable, ImageLoader {
     private characters: Array<Character> = [];
 
     constructor() {
+        this.client.io.on("error", (msg: ErrorEvent) => {
+            // console.log(msg);
+            alert(`An error occured!\n\n${msg.msg}\n\n${msg.desc}`)
+        });
+
         this.client.io.on("levelchange", async (msg: LevelChangeEvent) => {
             console.log(msg);
             let lvl = await GameMap.getLevel(msg.level);

@@ -1,4 +1,6 @@
 const path = require('path');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { InjectBodyPlugin } = require('inject-body-webpack-plugin');
 
 const serverConfig = {
     target: 'node',
@@ -38,7 +40,15 @@ const clientConfig = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'client.bundle.js'
-    }
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            templateContent: "<html><head></head><body></body></html>"
+        })
+/*         new InjectBodyPlugin({
+            content: "<canvas id='game'></canvas>"
+        }) */
+    ]
 }
 
 module.exports = [serverConfig, clientConfig]; /* {

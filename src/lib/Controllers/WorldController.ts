@@ -4,14 +4,11 @@ import { GameMap } from "../Map/GameMap";
 import { VisualOffset } from "../Interfaces/VisualOffset";
 import { InputHandler } from "../Interfaces/InputHandler";
 import { ResourceLoader } from "../Interfaces/ResourceLoader";
-
-import { AnimationController } from "./AnimationController";
 import { MapDrawable } from "../Interfaces/MapDrawable";
 import { CharacterController } from "./CharacterController";
-import { Character, PlayerDirection } from "../Map/MapObjects/Character";
+import { Character } from "../Map/MapObjects/Character";
 import { AudioController } from "./AudioController";
-import { LevelChangeEvent, PlayerX, PlayerY } from "../Interfaces/ServerEvents";
-import { MultiplayerClient } from "../Client/SocketClient";
+import { LevelChangeEvent } from "../Interfaces/ServerEvents";
 
 export class WorldController implements Drawable, VisualOffset, InputHandler {
 
@@ -76,9 +73,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
     this.charCont.setAnimationProgressOfPlayer(0);
   }
 
-  onKeyboardEvent(e: KeyboardEvent): Promise<void> {
-
-    return new Promise((res, rej) => {
+  onKeyboardEvent(e: KeyboardEvent): void {
       switch (e.key) {
         case "w":
           this.movePlayerUp();
@@ -113,14 +108,16 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
           this.teleport();
           break;
       }
-      res();
-    });
+      // res()
   }
 
   public teleport() {
-    this.charCont.client.send<LevelChangeEvent>("levelchange", {
-      level: "/assets/levels/unbenannt1.json"
-    });
+    let lvl = prompt("new level? (Full path)");
+    if (lvl !== null && lvl !== "") {
+      this.charCont.client.send<LevelChangeEvent>("levelchange", {
+        level: lvl!
+      });
+    }
   }
 
   public movePlayerUp() {
