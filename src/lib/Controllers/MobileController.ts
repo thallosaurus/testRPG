@@ -152,7 +152,7 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
             ctx.drawImage(this.buttonsImage, Canvas.width - this.safeAreaRight - this.buttonWidth, Canvas.height - this.safeAreaBottom - 125, this.buttonWidth, this.buttonHeight);
         }
 
-        if (this.unmuteImage && !AudioController.audioCtx) {
+        if (this.unmuteImage && !AudioController.audioCtx && Canvas.DEBUG) {
             ctx.drawImage(this.unmuteImage, Canvas.width / 2 - 24, this.safeAreaTop, this.unmuteButtonWidth, this.unmuteButtonHeight);
         }
 
@@ -196,7 +196,7 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
         this.addTouchHandler(this.safeAreaLeft + this.dpadX, this.dpadY + this.dpadHeight / 3 - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadLeft.bind(this));    //left
 
         this.addTouchHandler(Canvas.width - this.safeAreaRight - this.buttonWidth, Canvas.height - this.safeAreaBottom - 125, this.buttonWidth, this.buttonHeight, this.aButton.bind(this));
-        this.addTouchHandler(Canvas.width / 2 - 24, this.safeAreaTop, this.unmuteButtonWidth, this.unmuteButtonHeight, () => AudioController.activateAudioContext());
+        Canvas.DEBUG && this.addTouchHandler(Canvas.width / 2 - 24, this.safeAreaTop, this.unmuteButtonWidth, this.unmuteButtonHeight, () => AudioController.activateAudioContext());
     }
 
     static resetController() {
