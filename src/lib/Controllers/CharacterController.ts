@@ -122,7 +122,7 @@ export class CharacterController implements SubMappable, ImageLoader {
                 if (data.id === MultiplayerClient.Client.id) {
                     WorldController.x_ += diff.x;
                     WorldController.y_ += diff.y;
-                    ObjectRegistry.disableInteraction();
+                    // ObjectRegistry.disableInteraction();
                 }
                 console.log("posupdate", data);
                 c.setX(data.x);
@@ -161,42 +161,47 @@ export class CharacterController implements SubMappable, ImageLoader {
     }
 
     moveOwnUp() {
-        if (this.ownPlayer !== null) {
+        if (this.canWalk()) {
             this.client.send<PositionUpdate>("posupdate", {
                 id: MultiplayerClient.Client.id,
-                x: this.ownPlayer.x,
-                y: this.ownPlayer.y - 1
+                x: this.ownPlayer!.x,
+                y: this.ownPlayer!.y - 1
             })
         }
     }
 
     moveOwnDown() {
-        if (this.ownPlayer !== null) {
+        if (this.canWalk()) {
             this.client.send<PositionUpdate>("posupdate", {
                 id: MultiplayerClient.Client.id,
-                x: this.ownPlayer.x,
-                y: this.ownPlayer.y + 1
+                x: this.ownPlayer!.x,
+                y: this.ownPlayer!.y + 1
             })
         }
     }
 
     moveOwnLeft() {
-        if (this.ownPlayer !== null) {
+        if (this.canWalk()) {
             this.client.send<PositionUpdate>("posupdate", {
                 id: MultiplayerClient.Client.id,
-                x: this.ownPlayer.x - 1,
-                y: this.ownPlayer.y
+                x: this.ownPlayer!.x - 1,
+                y: this.ownPlayer!.y
             })
         }
     }
 
     moveOwnRight() {
-        if (this.ownPlayer !== null) {
+        if (this.canWalk()) {
             this.client.send<PositionUpdate>("posupdate", {
                 id: MultiplayerClient.Client.id,
-                x: this.ownPlayer.x + 1,
-                y: this.ownPlayer.y
+                x: this.ownPlayer!.x + 1,
+                y: this.ownPlayer!.y
             })
         }
+    }
+
+    private canWalk() {
+        console.log(ObjectRegistry.interaction);
+        return this.ownPlayer !== null && ObjectRegistry.interaction === false;
     }
 }

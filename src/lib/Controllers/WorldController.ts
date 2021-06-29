@@ -64,51 +64,63 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
     this.charCont.setParent(this);
   }
 
+  /**
+   * @deprecated
+   * @param pos 
+   * @param distance 
+   */
   finalizeX(pos: boolean, distance: number): void {
     WorldController.x_ = (pos ? -1 : 1) * distance;
     this.charCont.setAnimationProgressOfPlayer(0);
   }
+
+  /**
+   * @deprecated
+   * @param pos 
+   * @param distance 
+   */
   finalizeY(pos: boolean, distance: number): void {
     WorldController.y_ = (pos ? -1 : 1) * distance;
     this.charCont.setAnimationProgressOfPlayer(0);
   }
 
   onKeyboardEvent(e: KeyboardEvent): void {
-      switch (e.key) {
-        case "w":
-          this.movePlayerUp();
-          break;
+    if (this.hasActiveEvent) return;
+    switch (e.key) {
+      case "w":
+        this.movePlayerUp();
+        break;
 
-        case "a":
-          this.movePlayerLeft();
-          break;
+      case "a":
+        this.movePlayerLeft();
+        break;
 
-        case "s":
-          this.movePlayerDown();
-          break;
+      case "s":
+        this.movePlayerDown();
+        break;
 
-        case "d":
-          this.movePlayerRight();
-          break;
+      case "d":
+        this.movePlayerRight();
+        break;
 
-        case "Enter":
-          Character.playDingSound();
-          break;
+      case "Enter":
+        Character.playDingSound();
+        break;
 
-        case "i":
-          AudioController.activateAudioContext();
-          break;
+      case "i":
+        AudioController.activateAudioContext();
+        break;
 
-        case "u":
-          console.log("u");
-          WorldController.map!.unloadResource();
-          break;
+      case "u":
+        console.log("u");
+        WorldController.map!.unloadResource();
+        break;
 
-        case "t":
-          this.teleport();
-          break;
-      }
-      // res()
+      case "t":
+        this.teleport();
+        break;
+    }
+    // res()
   }
 
   public teleport() {
@@ -123,6 +135,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   public movePlayerUp() {
     if (this.check(WorldController.map!.getMapDataXY(this.x, this.y - 1))
       && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y - 1))) {
+      this.hasActiveEvent = true;
       this.charCont.moveOwnUp();
     }
   }
@@ -130,6 +143,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   public movePlayerDown() {
     if (this.check(WorldController.map!.getMapDataXY(this.x, this.y + 1))
       && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y + 1))) {
+      this.hasActiveEvent = true;
       this.charCont.moveOwnDown();
     }
   }
@@ -137,6 +151,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   public movePlayerLeft() {
     if (this.check(WorldController.map!.getMapDataXY(this.x - 1, this.y))
       && this.checkNPC(this.charCont.getMapDataXY(this.x - 1, this.y))) {
+      this.hasActiveEvent = true;
       this.charCont.moveOwnLeft();
     }
   }
@@ -144,6 +159,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   public movePlayerRight() {
     if (this.check(WorldController.map!.getMapDataXY(this.x + 1, this.y))
       && this.checkNPC(this.charCont.getMapDataXY(this.x + 1, this.y))) {
+      this.hasActiveEvent = true;
       this.charCont.moveOwnRight();
     }
   }

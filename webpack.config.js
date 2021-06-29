@@ -1,6 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { InjectBodyPlugin } = require('inject-body-webpack-plugin');
+const { HtmlWebpackInjector } = require('inject-body-webpack-plugin');
 
 const serverConfig = {
     target: 'node',

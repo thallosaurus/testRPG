@@ -8,7 +8,7 @@ import { VisualOffset } from "./Interfaces/VisualOffset";
 
 export class ObjectRegistry {
     static renderQueue: Drawable[] = [];
-    static interaction: boolean;
+    static interaction: boolean = false;
 
     static async resolveAllSprites() {
         for (let res of ObjectRegistry.renderQueue.filter(objectIsResourceLoader)) {
@@ -34,7 +34,7 @@ export class ObjectRegistry {
     }
 
     static onInputEvent(e: KeyboardEvent) {
-        if (ObjectRegistry.interaction) return;
+        // if (ObjectRegistry.interaction) return;
         console.log(e);
         this.renderQueue.filter(objectIsInputHandler).forEach(f => {
             (f as unknown as InputHandler).onKeyboardEvent(e);
@@ -55,13 +55,17 @@ export class ObjectRegistry {
     }
 
     static enableInteraction() {
-        ObjectRegistry.interaction = false;
-        console.log("enabled interaction")
+        // setTimeout(() => {
+            // ObjectRegistry.interaction = false;
+            // console.log("enabled interaction after 25 ms")
+            // console.log("status", ObjectRegistry.interaction);
+        // }, 25);
     }
     
     static disableInteraction() {
-        ObjectRegistry.interaction = true;
-        console.log("disabled interaction")
+        // ObjectRegistry.interaction = true;
+        // console.log("disabled interaction")
+        // console.log("status", ObjectRegistry.interaction);
     }
 }
 

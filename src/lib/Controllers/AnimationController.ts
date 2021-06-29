@@ -32,7 +32,7 @@ export class AnimationController implements Drawable {
                 let o = a.element;
                 this.resetObject(o);
                 if (a.element instanceof WorldController) {
-                    ObjectRegistry.enableInteraction();
+                    // ObjectRegistry.enableInteraction();
                     console.log(a.element);
                 }
                 let index = AnimationController.animationQueue.indexOf(a);
@@ -44,6 +44,7 @@ export class AnimationController implements Drawable {
     resetObject(obj: VisualOffset) {
         obj.setVisualOffsetY(0, 0);
         obj.setVisualOffsetX(0, 0);
+        obj.hasActiveEvent = false;
     }
 
     static scheduleMapMoveAnimation(vis: VisualOffset, direction: PlayerDirection, count: number = 1) {
