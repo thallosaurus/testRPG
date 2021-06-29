@@ -31,7 +31,8 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
         for (let to of e.changedTouches) {
             this.touchesObj[to.identifier] = {
                 x: to.clientX,
-                y: to.clientY
+                y: to.clientY,
+                fingerindex: to.identifier
             };
         }
         console.log(this.touchesObj);
