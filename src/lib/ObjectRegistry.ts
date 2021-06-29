@@ -1,5 +1,3 @@
-// import { Drawable } from "./Controllers/CanvasController";
-
 import Canvas from "./Controllers/CanvasController";
 import { Drawable } from "./Interfaces/Drawable";
 import { InputHandler } from "./Interfaces/InputHandler";
@@ -34,10 +32,8 @@ export class ObjectRegistry {
     }
 
     static onInputEvent(e: KeyboardEvent) {
-        // if (ObjectRegistry.interaction) return;
-        console.log(e);
         this.renderQueue.filter(objectIsInputHandler).forEach(f => {
-            (f as unknown as InputHandler).onKeyboardEvent(e);
+            (f as unknown as InputHandler).onKeyboardEvent?.(e);
         });
 
     }
@@ -53,19 +49,24 @@ export class ObjectRegistry {
             (f as unknown as InputHandler).onMouseEvent?.(e);
         });
     }
-
-    static enableInteraction() {
-        // setTimeout(() => {
-            // ObjectRegistry.interaction = false;
-            // console.log("enabled interaction after 25 ms")
-            // console.log("status", ObjectRegistry.interaction);
-        // }, 25);
-    }
     
-    static disableInteraction() {
-        // ObjectRegistry.interaction = true;
-        // console.log("disabled interaction")
-        // console.log("status", ObjectRegistry.interaction);
+    static onTouchStartEvent(e: TouchEvent) {
+        
+        this.renderQueue.filter(objectIsInputHandler).forEach(f => {
+            (f as unknown as InputHandler).onTouchStartEvent?.(e);
+        });
+    }
+    static onTouchEndEvent(e: TouchEvent) {
+        
+        this.renderQueue.filter(objectIsInputHandler).forEach(f => {
+            (f as unknown as InputHandler).onTouchEndEvent?.(e);
+        });
+    }
+    static onTouchMoveEvent(e: TouchEvent) {
+        
+        this.renderQueue.filter(objectIsInputHandler).forEach(f => {
+            (f as unknown as InputHandler).onTouchMoveEvent?.(e);
+        });
     }
 }
 
@@ -84,7 +85,3 @@ function objectIsVisualOffset(obj: any): obj is VisualOffset {
 function objectIsInputHandler(obj: any): obj is InputHandler {
     return 'onKeyboardEvent' in obj;
 }
-
-/* function objectIsSocketSubscriber(obj: any): obj is SocketSubscriber {
-    return 'onmessage' in obj;
-} */

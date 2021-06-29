@@ -70,6 +70,10 @@ export default class Canvas implements Drawable {
             throw qSel + " is not a valid Canvas Query String";
         }
 
+        window.addEventListener("touchstart", (event) => {ObjectRegistry.onTouchStartEvent(event)});
+        window.addEventListener("touchmove", (event) => {ObjectRegistry.onTouchMoveEvent(event)});
+        window.addEventListener("touchend", (event) => {ObjectRegistry.onTouchEndEvent(event)});
+
         window.addEventListener("keydown", ObjectRegistry.onInputEvent.bind(ObjectRegistry));
 
          Canvas.DEBUG && window.addEventListener("mousedown", (event) => {
@@ -77,7 +81,6 @@ export default class Canvas implements Drawable {
             mouseStartY = event.clientY;
         });
 
-        window.addEventListener("touchstart", (event) => {ObjectRegistry.onTouchEvent(event)});
 
         Canvas.DEBUG && window.addEventListener("mousemove", (event) => {
             if (mouseStartX !== null && mouseStartY !== null) {
@@ -95,12 +98,6 @@ export default class Canvas implements Drawable {
             mouseStartX = null;
             mouseStartY = null;
         });
-
-        /*SocketConnection.setupSockets(); */
-
-        // this.loadStuff("level2.json");
-
-        //Canvas.client = 
 
         this.addObjectsToRenderQueue();
 
@@ -160,7 +157,7 @@ export default class Canvas implements Drawable {
 
         ObjectRegistry.addToRenderQueue(worldcontroller);
 
-        ObjectRegistry.addToRenderQueue(new HUDController());
+        // ObjectRegistry.addToRenderQueue(new HUDController());
         
         let mobileInput = new MobileController();
         if (isPhone()) ObjectRegistry.addToRenderQueue(mobileInput);

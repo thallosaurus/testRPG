@@ -201,7 +201,7 @@ export class CharacterController implements SubMappable, ImageLoader {
     }
 
     private canWalk() {
-        console.log(ObjectRegistry.interaction);
-        return this.ownPlayer !== null && ObjectRegistry.interaction === false;
+        // console.log(ObjectRegistry.interaction);
+        return this.ownPlayer !== null;
     }
 }

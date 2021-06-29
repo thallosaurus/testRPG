@@ -31,10 +31,10 @@ export class AnimationController implements Drawable {
                 a.changes = [];
                 let o = a.element;
                 this.resetObject(o);
-                if (a.element instanceof WorldController) {
+                // if (a.element instanceof WorldController) {
                     // ObjectRegistry.enableInteraction();
-                    console.log(a.element);
-                }
+                    // console.log(a.element);
+                // }
                 let index = AnimationController.animationQueue.indexOf(a);
                 AnimationController.animationQueue.splice(index, 1);
             }
