@@ -216,6 +216,6 @@ function isValidCanvasElement(canvas: Element | null): canvas is HTMLCanvasEleme
     return false;
 }
 
-function isPhone() {
+export function isPhone() {
     return navigator.userAgent.toLowerCase().match(/mobile/i);
 }

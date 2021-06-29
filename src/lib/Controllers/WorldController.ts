@@ -1,4 +1,4 @@
-import Canvas from "./CanvasController";
+import Canvas, { isPhone } from "./CanvasController";
 import { Drawable } from "../Interfaces/Drawable";
 import { GameMap } from "../Map/GameMap";
 import { VisualOffset } from "../Interfaces/VisualOffset";
@@ -15,13 +15,21 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   static map: GameMap | null = null;
   static charCont: CharacterController = new CharacterController();
 
-  private spriteWidth: number = 64;
-  private spriteHeight: number = 64;
+/*   private spriteWidth: number = 32;
+  private spriteHeight: number = 32; */
 
   private visualXOffset: number = 0;
   private visualYOffset: number = 0;
 
   public hasActiveEvent: boolean = false;
+
+  static get spriteWidth() : number {
+    return 64 / (isPhone() ? 2 : 1);
+  }
+
+  static get spriteHeight() : number {
+    return 64 / (isPhone() ? 2 : 1);;
+  }
 
   get tilesAvailableY() {
     return Canvas.height / this.tileHeight;
@@ -32,11 +40,11 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   }
 
   get tileWidth() {
-    return this.spriteWidth;
+    return WorldController.spriteWidth;
   }
 
   get tileHeight() {
-    return this.spriteHeight;
+    return WorldController.spriteHeight;
   }
 
   get charCont() {

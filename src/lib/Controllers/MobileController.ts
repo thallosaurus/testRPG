@@ -13,16 +13,7 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
     }
 
     onTouchEvent(e: TouchEvent): void {
-        // console.log(e);
-/*         let c = MobileController.touchEvents.filter(t => {
-            return (e.changedTouches[0].clientX > t.x && e.changedTouches[0].clientY > t.y && e.changedTouches[0].clientX < t.x + t.width && e.changedTouches[0].clientY < t.y + t.height);
-        });
-
-        // console.log(c);
-        // alert("touch");
-        if (c.length === 1) {
-            c[0].callback();
-        } */
+        //deprecated
     }
 
     onTouchStartEvent(e: TouchEvent) {
@@ -40,10 +31,7 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
 
     onTouchEndEvent(e: TouchEvent) {
         console.log("Touchend");
-        // console.log(e);
         for (let t of e.changedTouches) {
-            // alert("touchend, " + t.identifier);
-            // this.touches.splice(t.identifier);
             delete this.touchesObj[t.identifier];
         }
         console.log(e);
@@ -55,9 +43,6 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
             console.log(t.identifier);
             this.touchesObj[t.identifier].x = t.clientX;
             this.touchesObj[t.identifier].y = t.clientY;
-            // this.touches.splice(t.identifier);
-            // this.touches[t.identifier].x = t.clientX;
-            // this.touches[t.identifier].y = t.clientY;
         }
         console.log(e);
     }
@@ -89,6 +74,22 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
 
     get dpadHeight() {
         return 160;
+    }
+
+    get buttonWidth() {
+        return 80;
+    }
+
+    get buttonHeight() {
+        return 80;
+    }
+
+    get unmuteButtonWidth() {
+        return 48;
+    }
+
+    get unmuteButtonHeight() {
+        return 48;
     }
 
     get safeAreaLeft() {
@@ -148,11 +149,11 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
         }
 
         if (this.buttonsImage) {
-            ctx.drawImage(this.buttonsImage, Canvas.width - this.safeAreaRight - 75, Canvas.height - this.safeAreaBottom - 150, 60, 60);
+            ctx.drawImage(this.buttonsImage, Canvas.width - this.safeAreaRight - this.buttonWidth, Canvas.height - this.safeAreaBottom - 125, this.buttonWidth, this.buttonHeight);
         }
 
         if (this.unmuteImage && !AudioController.audioCtx) {
-            ctx.drawImage(this.unmuteImage, Canvas.width / 2 - 30, this.safeAreaTop, 60, 60);
+            ctx.drawImage(this.unmuteImage, Canvas.width / 2 - 24, this.safeAreaTop, this.unmuteButtonWidth, this.unmuteButtonHeight);
         }
 
         //check touches and run them
@@ -194,8 +195,8 @@ export class MobileController implements Drawable, ImageLoader, InputHandler {
         this.addTouchHandler(this.safeAreaLeft + this.dpadX + this.dpadWidth / 3 * 2, this.dpadY + this.dpadHeight / 3 - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadRight.bind(this));    //right
         this.addTouchHandler(this.safeAreaLeft + this.dpadX, this.dpadY + this.dpadHeight / 3 - this.safeAreaBottom, this.dpadWidth / 3, this.dpadHeight / 3, this.dpadLeft.bind(this));    //left
 
-        this.addTouchHandler(Canvas.width - this.safeAreaRight - 75, Canvas.height - this.safeAreaBottom - 150, 60, 60, this.aButton.bind(this));
-        this.addTouchHandler(Canvas.width / 2 - 30, this.safeAreaTop, 60, 60, () => AudioController.activateAudioContext());
+        this.addTouchHandler(Canvas.width - this.safeAreaRight - this.buttonWidth, Canvas.height - this.safeAreaBottom - 125, this.buttonWidth, this.buttonHeight, this.aButton.bind(this));
+        this.addTouchHandler(Canvas.width / 2 - 24, this.safeAreaTop, this.unmuteButtonWidth, this.unmuteButtonHeight, () => AudioController.activateAudioContext());
     }
 
     static resetController() {

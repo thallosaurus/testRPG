@@ -31,10 +31,7 @@ export class AnimationController implements Drawable {
                 a.changes = [];
                 let o = a.element;
                 this.resetObject(o);
-                // if (a.element instanceof WorldController) {
-                    // ObjectRegistry.enableInteraction();
-                    // console.log(a.element);
-                // }
+
                 let index = AnimationController.animationQueue.indexOf(a);
                 AnimationController.animationQueue.splice(index, 1);
             }
@@ -59,25 +56,25 @@ export class AnimationController implements Drawable {
         let frame:Array<number> = [];
         switch (direction) {
             case PlayerDirection.LEFT:
-                frame = this.createPosFrames(count);
+                frame = this.createPosFrames(count, WorldController.spriteWidth);
                 ticket.changes = frame;
                 ticket.direction = "x";
             break;
 
             case PlayerDirection.RIGHT:
-                frame = this.createNegFrames(count);
+                frame = this.createNegFrames(count, WorldController.spriteWidth);
                 ticket.changes = frame;
                 ticket.direction = "x";
             break;
 
             case PlayerDirection.UP:
-                frame = this.createPosFrames(count);
+                frame = this.createPosFrames(count, WorldController.spriteHeight);
                 ticket.changes = frame;
                 ticket.direction = "y";
                 break;
 
             case PlayerDirection.DOWN:
-                frame = this.createNegFrames(count);
+                frame = this.createNegFrames(count, WorldController.spriteHeight);
                 ticket.changes = frame;
                 ticket.direction = "y";
             break;
@@ -89,8 +86,8 @@ export class AnimationController implements Drawable {
     static createPosFrames(count: number, distance: number = 64) {
         let frames = [];
         let targetFrames = Canvas.targetFPS / 2;
-        let inc = 64 / targetFrames;
-        for (let i = -64; i < 0; i += inc) {
+        let inc = distance / targetFrames;
+        for (let i = distance * -1; i < 0; i += inc) {
             frames.push(i);
         }
         return frames;
@@ -99,8 +96,8 @@ export class AnimationController implements Drawable {
     static createNegFrames(count: number, distance: number = 64) {
         let frames = [];
         let targetFrames = Canvas.targetFPS / 2;
-        let inc = 64 / targetFrames;
-        for (let i = 64; i > 0; i -= inc) {
+        let inc = distance / targetFrames;
+        for (let i = distance; i > 0; i -= inc) {
             frames.push(i);
         }
         return frames;
