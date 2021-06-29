@@ -24,8 +24,8 @@ export namespace MultiplayerClient {
         }
 
         join(): Promise<string> | undefined {
-            let u = prompt("Username?");
-            let p = prompt("Password?");
+            let u = "user";
+            let p = "pw";
 
             if (LoginUtils.isValidInput(u, p)) {
                 console.log("Sending Join Event");
