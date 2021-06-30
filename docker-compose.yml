@@ -1,0 +1,26 @@
+version: '3'
+services:
+    server:
+        container_name: backend
+        build:
+            context: .
+            dockerfile: Dockerfile
+        env_file:
+            - .env
+        ports:
+            - 4000:4000
+        volumes:
+            - dist:/app/dist
+
+    client:
+        image: httpd:latest
+        container_name: client
+        command: httpd -D FOREGROUND
+        volumes: 
+            - dist:/usr/local/apache2/htdocs
+        ports:
+            - "80:80"
+            - "443:443"
+
+volumes:
+    dist:

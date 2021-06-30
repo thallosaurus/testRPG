@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { HtmlWebpackInjector } = require('inject-body-webpack-plugin');
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const serverConfig = {
     target: 'node',
@@ -48,10 +49,12 @@ const clientConfig = {
             title: "Schrottimon",
             template: './src/index.html',
             filename: 'index.html'
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: 'assets', to: "assets" }
+            ]
         })
-        /*         new InjectBodyPlugin({
-                    content: "<canvas id='game'></canvas>"
-                }) */
     ]
 }
 
