@@ -21,21 +21,15 @@ export class HUDController implements Drawable, InputHandler {
     }
 
     redraw(ctx: CanvasRenderingContext2D, timestamp: number): void {
-        // throw new Error("Method not implemented.");
-        // ctx.fillStyle = "white";
-        // ctx.fillRect(0, 0, 100, 100);
-
+        
+    }
+    
+    redrawDbg(ctx: CanvasRenderingContext2D, timestamp: number): void {
         if (HUDController.hudIsOpen) {
             ctx.font = "48px Arial";
             ctx.fillStyle = "white";
             ctx.fillText("The HUD is open", 0, 100);
         }
-    }
-
-    redrawDbg(ctx: CanvasRenderingContext2D, timestamp: number): void {
-        // throw new Error("Method not implemented.");
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, 100, 100);
     }
 
     static openMenu() {
