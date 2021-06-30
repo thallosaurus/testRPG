@@ -31,7 +31,9 @@ export abstract class SocketConnection {
     }
 
     public kickFromLevel() {
-        this.getPlayersInLevel().forEach(e => {
+        let players = this.getPlayersInLevel();
+        console.log("P", players);
+        players.forEach(e => {
             e.socket.emit("kill", {
                 id: this.id
             });
@@ -43,6 +45,7 @@ export abstract class SocketConnection {
         return SocketConnection.sockets.filter((e) => {
             return e instanceof Player;
         }).filter((e) => {
+            console.log(e);
             return (e as unknown as Player).level_ === (this as unknown as Player).level;
         })
     }
@@ -55,7 +58,7 @@ export abstract class SocketConnection {
         }
 
         console.log(obj);
-        SocketConnection.sendToAllClients("updateEvent", u as UpdateEvent);
+        this.getPlayersInLevel().map((e) => {e.socket.emit("updateEvent", u as UpdateEvent)});
     }
 
     static sendToAllClients(tag: string, payload: any, exclude: Array<SocketConnection> | null = null) {

@@ -1,30 +1,35 @@
-import Canvas from "./CanvasController";
+import Canvas, { isPhone } from "./CanvasController";
 import { Drawable } from "../Interfaces/Drawable";
 import { GameMap } from "../Map/GameMap";
 import { VisualOffset } from "../Interfaces/VisualOffset";
 import { InputHandler } from "../Interfaces/InputHandler";
 import { ResourceLoader } from "../Interfaces/ResourceLoader";
-
-import { AnimationController } from "./AnimationController";
 import { MapDrawable } from "../Interfaces/MapDrawable";
 import { CharacterController } from "./CharacterController";
-import { Character, PlayerDirection } from "../Map/MapObjects/Character";
+import { Character } from "../Map/MapObjects/Character";
 import { AudioController } from "./AudioController";
-import { LevelChangeEvent, PlayerX, PlayerY } from "../Interfaces/ServerEvents";
-import { MultiplayerClient } from "../Client/SocketClient";
+import { LevelChangeEvent } from "../Interfaces/ServerEvents";
 
 export class WorldController implements Drawable, VisualOffset, InputHandler {
 
   static map: GameMap | null = null;
   static charCont: CharacterController = new CharacterController();
 
-  private spriteWidth: number = 64;
-  private spriteHeight: number = 64;
+/*   private spriteWidth: number = 32;
+  private spriteHeight: number = 32; */
 
   private visualXOffset: number = 0;
   private visualYOffset: number = 0;
 
   public hasActiveEvent: boolean = false;
+
+  static get spriteWidth() : number {
+    return 64 / (isPhone() ? 2 : 1);
+  }
+
+  static get spriteHeight() : number {
+    return 64 / (isPhone() ? 2 : 1);;
+  }
 
   get tilesAvailableY() {
     return Canvas.height / this.tileHeight;
@@ -35,11 +40,11 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   }
 
   get tileWidth() {
-    return this.spriteWidth;
+    return WorldController.spriteWidth;
   }
 
   get tileHeight() {
-    return this.spriteHeight;
+    return WorldController.spriteHeight;
   }
 
   get charCont() {
@@ -67,65 +72,78 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
     this.charCont.setParent(this);
   }
 
+  /**
+   * @deprecated
+   * @param pos 
+   * @param distance 
+   */
   finalizeX(pos: boolean, distance: number): void {
     WorldController.x_ = (pos ? -1 : 1) * distance;
     this.charCont.setAnimationProgressOfPlayer(0);
   }
+
+  /**
+   * @deprecated
+   * @param pos 
+   * @param distance 
+   */
   finalizeY(pos: boolean, distance: number): void {
     WorldController.y_ = (pos ? -1 : 1) * distance;
     this.charCont.setAnimationProgressOfPlayer(0);
   }
 
-  onKeyboardEvent(e: KeyboardEvent): Promise<void> {
+  onKeyboardEvent(e: KeyboardEvent): void {
+    if (this.hasActiveEvent) return;
+    switch (e.key) {
+      case "w":
+        this.movePlayerUp();
+        break;
 
-    return new Promise((res, rej) => {
-      switch (e.key) {
-        case "w":
-          this.movePlayerUp();
-          break;
+      case "a":
+        this.movePlayerLeft();
+        break;
 
-        case "a":
-          this.movePlayerLeft();
-          break;
+      case "s":
+        this.movePlayerDown();
+        break;
 
-        case "s":
-          this.movePlayerDown();
-          break;
+      case "d":
+        this.movePlayerRight();
+        break;
 
-        case "d":
-          this.movePlayerRight();
-          break;
+      case "Enter":
+        Character.playDingSound();
+        break;
 
-        case "Enter":
-          Character.playDingSound();
-          break;
+      case "i":
+        AudioController.activateAudioContext();
+        break;
 
-        case "i":
-          AudioController.activateAudioContext();
-          break;
+      case "u":
+        console.log("u");
+        WorldController.map!.unloadResource();
+        break;
 
-        case "u":
-          console.log("u");
-          WorldController.map!.unloadResource();
-          break;
-
-        case "t":
-          this.teleport();
-          break;
-      }
-      res();
-    });
+      case "t":
+        this.teleport();
+        break;
+    }
+    // res()
   }
 
   public teleport() {
-    this.charCont.client.send<LevelChangeEvent>("levelchange", {
-      level: "/assets/levels/unbenannt1.json"
-    });
+    let lvl = prompt("new level? (Full path)");
+    if (lvl !== null && lvl !== "") {
+      this.charCont.client.send<LevelChangeEvent>("levelchange", {
+        level: lvl!
+      });
+    }
   }
 
   public movePlayerUp() {
     if (this.check(WorldController.map!.getMapDataXY(this.x, this.y - 1))
       && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y - 1))) {
+      this.hasActiveEvent = true;
       this.charCont.moveOwnUp();
     }
   }
@@ -133,6 +151,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   public movePlayerDown() {
     if (this.check(WorldController.map!.getMapDataXY(this.x, this.y + 1))
       && this.checkNPC(this.charCont.getMapDataXY(this.x, this.y + 1))) {
+      this.hasActiveEvent = true;
       this.charCont.moveOwnDown();
     }
   }
@@ -140,6 +159,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   public movePlayerLeft() {
     if (this.check(WorldController.map!.getMapDataXY(this.x - 1, this.y))
       && this.checkNPC(this.charCont.getMapDataXY(this.x - 1, this.y))) {
+      this.hasActiveEvent = true;
       this.charCont.moveOwnLeft();
     }
   }
@@ -147,6 +167,7 @@ export class WorldController implements Drawable, VisualOffset, InputHandler {
   public movePlayerRight() {
     if (this.check(WorldController.map!.getMapDataXY(this.x + 1, this.y))
       && this.checkNPC(this.charCont.getMapDataXY(this.x + 1, this.y))) {
+      this.hasActiveEvent = true;
       this.charCont.moveOwnRight();
     }
   }

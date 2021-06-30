@@ -65,3 +65,10 @@ export namespace MapUtils {
         y: number;
     }
 }
+
+export namespace LoginUtils {
+    export function isValidInput(u: string | null, p?: string | null) {
+        return (u !== "") && (u !== undefined)
+            && (p !== "") && (p !== undefined)
+    }
+}

@@ -55,6 +55,7 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset, Update
         console.log("Set " + id + " to ", x, y);
     }
 
+    //UNUSED
     hasActiveEvent: boolean = false;
 
     visualXOffset: number = 0;
