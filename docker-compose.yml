@@ -17,7 +17,7 @@ services:
         container_name: client
         volumes: 
             - dist:/app
-            - ./config/default:/etc/nginx/conf.d/default.conf
+            - ./config/default.conf:/etc/nginx/conf.d/default.conf
         ports:
             - "80:80"
 #            - "443:443"
