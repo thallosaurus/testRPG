@@ -28,26 +28,30 @@ const clientConfig = {
     devtool: 'source-map',
     context: __dirname,
     module: {
-        rules: [{
-            test: /\.ts$/,
-            use: 'ts-loader',
-            exclude: path.resolve(__dirname, "node_modules/")
-        }]
+        rules: [
+            {
+                test: /\.ts$/,
+                use: 'ts-loader',
+                exclude: path.resolve(__dirname, "node_modules/")
+            }
+        ]
     },
     resolve: {
         extensions: ['.ts', '.js']
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'client.bundle.js'
+        filename: 'client.bundle.[contenthash].js'
     },
     plugins: [
         new HtmlWebpackPlugin({
-            templateContent: "<html><head></head><body></body></html>"
+            title: "Schrottimon",
+            template: './src/index.html',
+            filename: 'index.html'
         })
-/*         new InjectBodyPlugin({
-            content: "<canvas id='game'></canvas>"
-        }) */
+        /*         new InjectBodyPlugin({
+                    content: "<canvas id='game'></canvas>"
+                }) */
     ]
 }
 

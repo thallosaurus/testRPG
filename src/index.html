@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="viewport" content="initial-scale=1, viewport-fit=cover, width=device-width, user-scalable=no"></meta>
+    <meta name="apple-mobile-web-app-capable" content="yes"></meta>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></meta>
+    <link rel="apple-touch-icon" sizes="512x512" href="/assets/icon_512.png">
+    <script data-consolejs-channel="674c4336-b997-6fa7-45cd-b6f2bbfa7e14" src="https://remotejs.com/agent/agent.js"></script>
+
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            overflow: hidden;
+            background-color: black;
+            /* touch-action: none; */
+            user-select: none;
+            pointer-events: none;
+        }
+
+        #game {
+            user-select: none;
+            touch-action: none;
+            pointer-events: none;
+	    position: fixed;
+        }
+
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sar: env(safe-area-inset-right);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="game"></canvas>
+</body>
+
+</html>

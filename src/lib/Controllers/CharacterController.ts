@@ -1,7 +1,7 @@
 import { MultiplayerClient } from "../Client/SocketClient";
 import { MapDrawable } from "../Interfaces/MapDrawable";
 import { ImageLoader } from "../Interfaces/ResourceLoader";
-import { BoardUpdate, KillEvent, LevelChangeEvent, NewPlayerEvent, PositionUpdate, UpdateEvent, ErrorEvent } from "../Interfaces/ServerEvents";
+import { BoardUpdate, KillEvent, LevelChangeEvent, NewPlayerEvent, PositionUpdate, UpdateEvent, ErrorEvent, HelloEventArray } from "../Interfaces/ServerEvents";
 import { GameMap } from "../Map/GameMap";
 import { Character, PlayerDirection } from "../Map/MapObjects/Character";
 import { ObjectRegistry } from "../ObjectRegistry";
@@ -68,7 +68,7 @@ export class CharacterController implements SubMappable, ImageLoader {
                     WorldController.x_ = data.x;
                     WorldController.y_ = data.y;
                 }
-                let character = new Character(data.id, data.x, data.y);
+                let character = new Character(data);
                 character.resolveResource();
 
                 this.characters.push(character);
@@ -130,10 +130,10 @@ export class CharacterController implements SubMappable, ImageLoader {
             }
         });
 
-        this.client.io.on("hello", (data: BoardUpdate) => {
+        this.client.io.on("hello", (data: HelloEventArray) => {
             console.log("hello", data);
             for (let p of data.players) {
-                this.characters.push(new Character(p.id, p.x, p.y));
+                this.characters.push(new Character(p));
             }
         });
 

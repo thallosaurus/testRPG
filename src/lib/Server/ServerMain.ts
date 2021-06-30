@@ -2,7 +2,7 @@ import { Server, Socket } from 'socket.io';
 import http from 'http';
 import { Player } from './Player';
 import express from 'express';
-import { ClientJoinEvent, ClientJoinLogin, KillEvent, NewPlayerEvent, PositionUpdate } from '../Interfaces/ServerEvents';
+import { BoardUpdate, ClientJoinEvent, ClientJoinLogin, HelloEvent, HelloEventArray, KillEvent, NewPlayerEvent, PositionUpdate } from '../Interfaces/ServerEvents';
 
 export namespace MultiplayerServer {
     const WEBMANIFEST = {
@@ -54,7 +54,8 @@ export namespace MultiplayerServer {
                             let data = {
                                 id: socket.id,
                                 x: 4,
-                                y: 6
+                                y: 6,
+                                name: "Player"
                             } as NewPlayerEvent;
 
                             let player = new Player(socket, this);
@@ -77,19 +78,20 @@ export namespace MultiplayerServer {
                                 buf.push({
                                     id: e.id,
                                     x: e.x_,
-                                    y: e.y_
-                                });
+                                    y: e.y_,
+                                    name: "User"
+                                } as HelloEvent);
                             });
 
                             console.log("Players", buf);
                             socket.emit("hello", {
                                 players: buf
-                            });
+                            } as HelloEventArray);
                         } else {
-                            this.error("Wrong username/password", "wrong username/password");
+                            this.error("Wrong username/password", "wrong username/password", socket);
                         }
                     } else {
-                        this.error("Bad Request, id must be an empty string!");
+                        this.error("Bad Request", "id must be an empty string!", socket);
                     }
                 });
             });
@@ -142,8 +144,9 @@ export namespace MultiplayerServer {
             });
         }
 
-        public error(msg:string = "unknown error", desc:string = "unknown description") {
-            this.io.emit("error", {
+        public error(msg:string = "unknown error", desc:string = "unknown description", socket: Socket | null = null) {
+            let sock = socket === null ? this.io : socket;
+            sock.emit("error", {
                     msg: msg,
                     desc: desc
                 } as unknown as ErrorEvent);
@@ -155,5 +158,10 @@ export namespace MultiplayerServer {
     }
 
     console.log(__dirname);
-    new ServerMain();
+    let s = new ServerMain();
+    
+    process.on("SIGUSR2", () => {
+        console.log("Nodemon restarted, kicking all players");
+        s.error("server restarts", "please refresh");
+    });
 }
