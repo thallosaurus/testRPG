@@ -3,7 +3,6 @@ import { MapDrawable } from "../Interfaces/MapDrawable";
 import { ImageLoader } from "../Interfaces/ResourceLoader";
 // import { SocketSubscriber } from "../Interfaces/SocketSubscriber.js";
 import { ObjectLayer } from "./ObjectLayer";
-import { SimpleTile } from "./SimpleTile";
 import { TiledJSONLevelLayer, TiledJSONMap, TiledJSONObjectLayer } from "./TiledJSONMap";
 import { TileLayer } from "./TileLayer";
 

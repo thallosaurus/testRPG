@@ -11,6 +11,7 @@ export class Player extends SocketConnection {
     parent: MultiplayerServer.ServerMain;
 
     set level(s: string) {
+        this.kickFromLevel();
         this.level_ = s;
         this.socket.emit("levelchange", {
             level: s

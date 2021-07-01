@@ -1,7 +1,7 @@
 import { MultiplayerClient } from "../Client/SocketClient";
 import { MapDrawable } from "../Interfaces/MapDrawable";
 import { ImageLoader } from "../Interfaces/ResourceLoader";
-import { BoardUpdate, KillEvent, LevelChangeEvent, NewPlayerEvent, PlayerJoinEvent, PositionUpdate, UpdateEvent } from "../Interfaces/ServerEvents";
+import { BoardUpdate, KillEvent, LevelChangeEvent, NewPlayerEvent, PositionUpdate, UpdateEvent, ErrorEvent, HelloEventArray } from "../Interfaces/ServerEvents";
 import { GameMap } from "../Map/GameMap";
 import { Character, PlayerDirection } from "../Map/MapObjects/Character";
 import { ObjectRegistry } from "../ObjectRegistry";
@@ -48,6 +48,11 @@ export class CharacterController implements SubMappable, ImageLoader {
     private characters: Array<Character> = [];
 
     constructor() {
+        this.client.io.on("error", (msg: ErrorEvent) => {
+            // console.log(msg);
+            alert(`An error occured!\n\n${msg.msg}\n\n${msg.desc}`)
+        });
+
         this.client.io.on("levelchange", async (msg: LevelChangeEvent) => {
             console.log(msg);
             let lvl = await GameMap.getLevel(msg.level);
@@ -63,7 +68,7 @@ export class CharacterController implements SubMappable, ImageLoader {
                     WorldController.x_ = data.x;
                     WorldController.y_ = data.y;
                 }
-                let character = new Character(data.id, data.x, data.y);
+                let character = new Character(data);
                 character.resolveResource();
 
                 this.characters.push(character);
@@ -117,7 +122,7 @@ export class CharacterController implements SubMappable, ImageLoader {
                 if (data.id === MultiplayerClient.Client.id) {
                     WorldController.x_ += diff.x;
                     WorldController.y_ += diff.y;
-                    ObjectRegistry.disableInteraction();
+                    // ObjectRegistry.disableInteraction();
                 }
                 console.log("posupdate", data);
                 c.setX(data.x);
@@ -125,10 +130,10 @@ export class CharacterController implements SubMappable, ImageLoader {
             }
         });
 
-        this.client.io.on("hello", (data: BoardUpdate) => {
+        this.client.io.on("hello", (data: HelloEventArray) => {
             console.log("hello", data);
             for (let p of data.players) {
-                this.characters.push(new Character(p.id, p.x, p.y));
+                this.characters.push(new Character(p));
             }
         });
 
@@ -156,42 +161,47 @@ export class CharacterController implements SubMappable, ImageLoader {
     }
 
     moveOwnUp() {
-        if (this.ownPlayer !== null) {
+        if (this.canWalk()) {
             this.client.send<PositionUpdate>("posupdate", {
                 id: MultiplayerClient.Client.id,
-                x: this.ownPlayer.x,
-                y: this.ownPlayer.y - 1
+                x: this.ownPlayer!.x,
+                y: this.ownPlayer!.y - 1
             })
         }
     }
 
     moveOwnDown() {
-        if (this.ownPlayer !== null) {
+        if (this.canWalk()) {
             this.client.send<PositionUpdate>("posupdate", {
                 id: MultiplayerClient.Client.id,
-                x: this.ownPlayer.x,
-                y: this.ownPlayer.y + 1
+                x: this.ownPlayer!.x,
+                y: this.ownPlayer!.y + 1
             })
         }
     }
 
     moveOwnLeft() {
-        if (this.ownPlayer !== null) {
+        if (this.canWalk()) {
             this.client.send<PositionUpdate>("posupdate", {
                 id: MultiplayerClient.Client.id,
-                x: this.ownPlayer.x - 1,
-                y: this.ownPlayer.y
+                x: this.ownPlayer!.x - 1,
+                y: this.ownPlayer!.y
             })
         }
     }
 
     moveOwnRight() {
-        if (this.ownPlayer !== null) {
+        if (this.canWalk()) {
             this.client.send<PositionUpdate>("posupdate", {
                 id: MultiplayerClient.Client.id,
-                x: this.ownPlayer.x + 1,
-                y: this.ownPlayer.y
+                x: this.ownPlayer!.x + 1,
+                y: this.ownPlayer!.y
             })
         }
+    }
+
+    private canWalk() {
+        // console.log(ObjectRegistry.interaction);
+        return this.ownPlayer !== null;
     }
 }

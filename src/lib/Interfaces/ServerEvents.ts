@@ -14,8 +14,11 @@ export interface PlayerY {
 
 export interface PlayerJoinEvent {
     id: string;
-/*     x: number;
-    y: number; */
+}
+
+export interface ClientJoinLogin extends PlayerJoinEvent {
+    username: string;
+    password: string;
 }
 
 export interface ClientJoinEvent extends PlayerJoinEvent {
@@ -25,6 +28,7 @@ export interface ClientJoinEvent extends PlayerJoinEvent {
 export interface NewPlayerEvent extends PlayerJoinEvent{
     x: number;
     y: number;
+    name: string;
 }
 
 export interface UpdateEvent {
@@ -43,6 +47,23 @@ export interface BoardUpdate {
     players: Array<UpdateEvent>;
 }
 
+
 export interface KillEvent {
     id: string;
+}
+
+export interface ErrorEvent {
+    msg: string;
+    desc: string;
+}
+
+export interface HelloEventArray {
+    players: Array<HelloEvent>;
+}
+
+export interface HelloEvent {
+    id: string;
+    x: number;
+    y: number;
+    name: string;
 }

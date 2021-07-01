@@ -4,7 +4,7 @@ import { AnimationController } from "../../Controllers/AnimationController";
 import { AudioController } from "../../Controllers/AudioController";
 import { MapDrawable } from "../../Interfaces/MapDrawable";
 import { ImageLoader } from "../../Interfaces/ResourceLoader";
-import { PlayerX } from "../../Interfaces/ServerEvents";
+import { HelloEvent, NewPlayerEvent, PlayerX } from "../../Interfaces/ServerEvents";
 import { UpdatePending } from "../../Interfaces/UpdatePending";
 import { VisualOffset } from "../../Interfaces/VisualOffset";
 import { MapUtils } from "../../Utilities";
@@ -18,6 +18,7 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset, Update
     public x: number;
     public y: number;
     public id: string;
+    private name: string;
 
     updatePending: boolean = false;
 
@@ -36,6 +37,16 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset, Update
             w,
             h
         );
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(this.getVisualOffsetX() + x, this.getVisualOffsetY() + y - 13, w, 12);
+
+        ctx.fillStyle = "black";
+        ctx.font = "12px Arial";
+        ctx.textBaseline = "bottom";
+        ctx.textAlign = "center";
+        ctx.fillText(this.name, this.getVisualOffsetX() + x + (w / 2), this.getVisualOffsetY() + y, w);
+        
     }
 
 
@@ -47,14 +58,16 @@ export class Character implements MapDrawable, ImageLoader, VisualOffset, Update
         this.direction = direction;
     }
 
-    constructor(id: string, x: number, y: number) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
+    constructor(join: HelloEvent) {
+        this.id = join.id;
+        this.x = join.x;
+        this.y = join.y;
+        this.name = join.name;
 
-        console.log("Set " + id + " to ", x, y);
+        console.log("Set " + this.id + " to ", this.x, this.y);
     }
 
+    //UNUSED
     hasActiveEvent: boolean = false;
 
     visualXOffset: number = 0;
