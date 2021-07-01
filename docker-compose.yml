@@ -18,9 +18,10 @@ services:
         #build:
         #    context: .
         #    dockerfile: Dockerfile.client
-        volumes: 
+        volumes:
             - dist:/usr/share/nginx/html
             - ./config/nginx.conf:/etc/nginx/conf.d/site.conf
+
         ports:
             - "80:80"
 #            - "443:443"
