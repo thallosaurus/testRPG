@@ -1,5 +1,16 @@
 version: '3'
 services:
+    db:
+        image: mysql:latest
+        container_name: db
+        environment:
+            MYSQL_ROOT_PASSWORD: root_password
+            MYSQL_DATABASE: urlaubskalender
+            MYSQL_USER: urlaub
+            MYSQL_PASSWORD: urlaub
+        volumes:
+            - dbdata:/var/lib/mysql
+            
     server:
         container_name: backend
         build:
