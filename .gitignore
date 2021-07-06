@@ -4,3 +4,4 @@ dist/
 build/
 build_ts/
 .DS_Store
+.env
