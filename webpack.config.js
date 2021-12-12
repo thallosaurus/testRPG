@@ -15,6 +15,7 @@ const serverConfig = {
             exclude: path.resolve(__dirname, "node_modules/")
         }]
     },
+    name: "server",
     resolve: {
         extensions: ['.ts', '.js']
     },
@@ -37,6 +38,7 @@ const clientConfig = {
             }
         ]
     },
+    name: "client",
     resolve: {
         extensions: ['.ts', '.js']
     },

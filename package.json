@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf dist && rm -rf build && rm -rf node_modules",
     "build": "npx webpack --mode production",
+    "build-client": "npx webpack --mode production --config-name client",
+    "build-server": "npx webpack --mode production --config-name server",
     "start": "npx webpack --watch --mode development"
   },
   "author": "",
