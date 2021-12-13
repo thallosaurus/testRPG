@@ -14,5 +14,5 @@ RUN npm run build-server
 
 #RUN npm install nodemon
 
-CMD [ "pm2", "start", ".", "--name", "server" ]
-#CMD ["node", "."]
+#CMD [ "pm2", "start", ".", "--name", "server" ]
+CMD ["node", "."]
