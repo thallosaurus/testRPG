@@ -63,11 +63,11 @@ export class Player extends SocketConnection {
             console.log("POS", pos);
             this.x_ = pos.x;
             this.y_ = pos.y;
-            this.parent.emit("posupdate", {
+            /*this.parent.emit("posupdate", {
                 id: pos.id,
                 x: pos.x,
                 y: pos.y
-            });
+            });*/
         });
     }
 }

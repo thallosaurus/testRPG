@@ -29,7 +29,7 @@ export interface NewPlayerEvent extends PlayerJoinEvent{
     x: number;
     y: number;
     name: string;
-}
+} 
 
 export interface UpdateEvent {
     id: string;
@@ -67,3 +67,22 @@ export interface HelloEvent {
     y: number;
     name: string;
 }
+
+export interface ServerToClientEvents {
+    // UpdateEvent: (id: string, x: number, y: number) => void;
+    NewPlayerEvent: (id: string, x: number, y: number, name: string) => void;
+}
+
+export interface ClientToServerEvents {
+    
+    clientjoin: (id: string, username: string, password: string) => void;
+}
+
+export interface InterServerEvents {
+
+}
+
+export interface SocketData {
+    name: string;
+    age: number;
+  }

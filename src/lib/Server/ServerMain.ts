@@ -2,7 +2,7 @@ import { Server, Socket } from 'socket.io';
 import http from 'http';
 import { Player } from './Player';
 import express from 'express';
-import { BoardUpdate, ClientJoinEvent, ClientJoinLogin, HelloEvent, HelloEventArray, KillEvent, NewPlayerEvent, PositionUpdate } from '../Interfaces/ServerEvents';
+import { BoardUpdate, /*ClientJoinEvent, ClientJoinLogin, */ClientToServerEvents, HelloEvent, HelloEventArray, InterServerEvents, KillEvent, /*NewPlayerEvent,*/ PositionUpdate, ServerToClientEvents, SocketData } from '../Interfaces/ServerEvents';
 
 export namespace MultiplayerServer {
     const WEBMANIFEST = {
@@ -24,7 +24,8 @@ export namespace MultiplayerServer {
 
     export class ServerMain {
         private readonly http
-        private readonly io: Server;
+        // private readonly io_: Server;
+        private readonly io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
         private readonly port: number = 4000;
         private readonly expressApp: express.Application;
         private connections: Array<Player> = [];
@@ -32,8 +33,11 @@ export namespace MultiplayerServer {
         constructor() {
             this.expressApp = express();
             this.http = http.createServer(this.expressApp);
-            this.io = new Server(this.http);
-            this.setupSocket(this.io);
+            // this.io_ = new Server(this.http);
+
+            this.io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>();
+            // this.setupSocket(this.io);
+            this.setupSocketTS();
             process.chdir("..");
             this.setupRoutes();
 
@@ -42,9 +46,18 @@ export namespace MultiplayerServer {
             });
         }
 
+        /**
+         * @deprecated use private setupSocketTS
+         * @param io SocketIO-Instance
+         *
         private setupSocket(io: Server) {
             io.on("connection", (socket: Socket) => {
                 console.log("Someone connected");
+
+                /*clientJoin
+
+                *
+               //msg => username, password, id
                 socket.on("clientjoin", (msg: ClientJoinLogin) => {
                     // console.log("Player Joined", msg);
                     if (msg.id === "") {
@@ -95,6 +108,15 @@ export namespace MultiplayerServer {
                     }
                 });
             });
+        }*/
+
+        private setupSocketTS() {
+            this.io.on("connection", (socket) => {
+                // socket.emit("NewPlayerEvent", id: socket.id);
+                socket.on("clientjoin", (id: string, username: string, password: string) => {
+                    console.log(`New Player with ID ${id} and username ${username}`);
+                });
+            });
         }
 
         public kill(p: Player) {
@@ -107,9 +129,9 @@ export namespace MultiplayerServer {
             });
         }
 
-        public emit(tag: string, data: any) {
+        /*public emit(tag: string, data: any) {
             this.io.emit(tag, data);
-        }
+        }*/
 
         private setupRoutes() {
             this.expressApp.get("/main.js", (req: express.Request, res: express.Response, next) => {
@@ -144,13 +166,13 @@ export namespace MultiplayerServer {
             });
         }
 
-        public error(msg:string = "unknown error", desc:string = "unknown description", socket: Socket | null = null) {
+        /*public error(msg:string = "unknown error", desc:string = "unknown description", socket: Socket | null = null) {
             let sock = socket === null ? this.io : socket;
             sock.emit("error", {
                     msg: msg,
                     desc: desc
                 } as unknown as ErrorEvent);
-        }
+        }*/
 
         private login(username: string, password: string) {
             return username === "user" && password === "pw";
@@ -162,6 +184,6 @@ export namespace MultiplayerServer {
     
     process.on("SIGUSR2", () => {
         console.log("Nodemon restarted, kicking all players");
-        s.error("server restarts", "please refresh");
+        // s.error("server restarts", "please refresh");
     });
 }
