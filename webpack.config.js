@@ -44,7 +44,7 @@ const clientConfig = {
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'client.bundle.[contenthash].js'
+        filename: 'client.bundle.js'
     },
     plugins: [
         new HtmlWebpackPlugin({

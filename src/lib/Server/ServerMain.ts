@@ -26,7 +26,7 @@ export namespace MultiplayerServer {
         private readonly http
         // private readonly io_: Server;
         private readonly io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
-        private readonly port: number = 4000;
+        private readonly port: number = 3050;
         private readonly expressApp: express.Application;
         private connections: Array<Player> = [];
 
@@ -35,7 +35,7 @@ export namespace MultiplayerServer {
             this.http = http.createServer(this.expressApp);
             // this.io_ = new Server(this.http);
 
-            this.io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>();
+            this.io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(this.http);
             // this.setupSocket(this.io);
             this.setupSocketTS();
             process.chdir("..");
@@ -112,6 +112,7 @@ export namespace MultiplayerServer {
 
         private setupSocketTS() {
             this.io.on("connection", (socket) => {
+                console.log("New connection");
                 // socket.emit("NewPlayerEvent", id: socket.id);
                 socket.on("clientjoin", (id: string, username: string, password: string) => {
                     console.log(`New Player with ID ${id} and username ${username}`);
